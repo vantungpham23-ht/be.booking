@@ -1,590 +1,874 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
-import { Scissors, Sparkles, Flame, Wand2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { useEffect, useState } from "react";
 
-const BOOKING_URL = "https://booking.behairbarber.shop/booking/";
+type MenuTab = "mens" | "womens" | "spa" | "massage";
+type Lang = "en" | "sk";
 
-const services = [
-  {
-    id: "klasicky-strih",
-    name: "Klasický strih (30 min)",
-    description: "Classic haircut with wash and styling. Most booked men’s service.",
-    duration: "30 min",
-    price: "15€",
-    icon: Scissors,
-  },
-  {
-    id: "melir",
-    name: "Melír (60–90 min)",
-    description: "Highlights for light, dimensional colour with styling.",
-    duration: "60–90 min",
-    price: "od 55€",
-    icon: Sparkles,
-  },
-  {
-    id: "classic-head-spa",
-    name: "Classic Head Spa (60 min)",
-    description: "Relaxing head spa ritual with wash, massage and scalp care.",
-    duration: "60 min",
-    price: "40€",
-    icon: Flame,
-  },
-];
+type TeamMember = {
+  name: string;
+  role: string;
+  bio: {
+    en: string;
+    sk: string;
+  };
+  focus: {
+    en: string;
+    sk: string;
+  };
+  avatarSrc: string;
+  avatarAlt: string;
+};
 
-const team = [
+const team: TeamMember[] = [
   {
     name: "Quan K.",
     role: "Master Barber",
-    bio: "Detail-obsessed with skin fades, classic cuts, and shaping Be. as a calm ritual space.",
-    focus: "Men's grooming · Skin fades · Beard design",
+    bio: {
+      en: "Men's grooming specialist with 8+ years of experience. Master of classic fades and modern beard design.",
+      sk: "Špecialista na pánske strihy s viac ako 8 rokmi skúseností. Majster klasických fade strihov a modernej úpravy brady.",
+    },
+    focus: {
+      en: "Men's grooming · Skin fades · Beard design",
+      sk: "Pánsky grooming · Skin fades · Úprava brady",
+    },
+    avatarSrc: "/team-marek.png",
+    avatarAlt: "Marek V. – Master Barber tại Be. Hair & Barber",
   },
   {
-    name: "Son Ngo",
-    role: "Senior Stylist & Colorist",
-    bio: "Blends modern colour techniques with soft, wearable shapes for all hair lengths.",
-    focus: "Salon cuts · Balayage & melír · Long hair styling",
+    name: "Son Ngo.",
+    role: "Color Specialist",
+    bio: {
+      en: "Color artist with international certification. Expert in balayage, natural highlights and advanced coloring techniques.",
+      sk: "Farebný umelec s medzinárodnou certifikáciou. Expert na balayage, prirodzené melíry a pokročilé farbiace techniky.",
+    },
+    focus: {
+      en: "Salon cuts · Balayage & melír · Long hair styling",
+      sk: "Dámske strihy · Balayage & melír · Úprava dlhých vlasov",
+    },
+    avatarSrc: "/team-marek.png",
+    avatarAlt: "Lucia K. – Color Specialist tại Be. Hair & Barber",
   },
   {
-    name: "Hank",
-    role: "Haircut & Head Spa Specialist",
-    bio: "Combines precise clipper work with restorative head spa and body massage.",
-    focus: "Clipper work · Head spa · Body massage",
+    name: "Hank.",
+    role: "Head Spa Expert",
+    bio: {
+      en: "Scalp and hair treatment expert. Combines traditional massage with modern spa therapies for a deeply relaxing experience.",
+      sk: "Expert na ošetrenie vlasov a pokožky hlavy. Spája tradičné masáže s modernými spa procedúrami pre hlboký oddych.",
+    },
+    focus: {
+      en: "Head spa · Massage · Keratin",
+      sk: "Head spa · Masáž · Keratín",
+    },
+    avatarSrc: "/team-marek.png",
+    avatarAlt: "Jana M. – Head Spa Expert tại Be. Hair & Barber",
   },
 ];
 
 export default function HomePage() {
+  const [activeTab, setActiveTab] = useState<MenuTab>("mens");
+  const [lang, setLang] = useState<Lang>("en");
+
+  useEffect(() => {
+    const cursor = document.getElementById("cursor");
+    const ring = document.getElementById("cursorRing");
+
+    if (!cursor || !ring) return;
+
+    let mx = 0;
+    let my = 0;
+    let rx = 0;
+    let ry = 0;
+    let frameId: number;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      mx = e.clientX;
+      my = e.clientY;
+      cursor.style.left = `${mx}px`;
+      cursor.style.top = `${my}px`;
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+
+    const animateRing = () => {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = `${rx}px`;
+      ring.style.top = `${ry}px`;
+      frameId = window.requestAnimationFrame(animateRing);
+    };
+
+    animateRing();
+
+    const reveals = document.querySelectorAll<HTMLElement>(".reveal");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -50px 0px" }
+    );
+
+    reveals.forEach((el) => observer.observe(el));
+
+    const nav = document.querySelector<HTMLElement>("nav");
+    const handleScroll = () => {
+      if (!nav) return;
+      nav.style.background =
+        window.scrollY > 80
+          ? "rgba(10,10,10,0.97)"
+          : "linear-gradient(to bottom, rgba(0,0,0,0.92), transparent)";
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      window.cancelAnimationFrame(frameId);
+      observer.disconnect();
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const goToBooking = () => {
+    window.location.href = "https://booking.behairbarber.shop/booking/";
+  };
+
+  const texts = {
+    en: {
+      nav: {
+        about: "About Us",
+        services: "Services",
+        team: "Our Team",
+        contact: "Contact",
+        book: "Book Now",
+      },
+      hero: {
+        eyebrow: "✦ Budapeštianská 38, Ťahanovce ✦",
+        title1: "YOUR SHINE,",
+        title2: "Our Masterpiece.",
+        sub: "High-end hair artistry — every cut is a masterpiece, every visit reveals a more confident you.",
+        cta: "Book Now",
+        scroll: "Discover",
+      },
+      story: {
+        label: "Our Story",
+        headingLine1: "Art Beyond",
+        headingLine2: "Every Cut",
+        p1: "Be. Hair & Barber was born from a deep passion for hair artistry and a desire to offer a complete grooming experience where technique meets aesthetics.",
+        p2: "Here, every client is entrusted to artists who understand face structure, trends, and each person's own vision.",
+        p3: "We believe beauty is not imitation, but discovering and honoring the best version of yourself.",
+        stat1: "Years of Experience",
+        stat2: "Happy Clients",
+        stat3: "Dedication",
+      },
+      team: {
+        label: "Expert Team",
+        heading1: "The Artists",
+        heading2: "Behind Your Look",
+        desc: "Each expert at Be. is highly trained and constantly updated on the latest trends and techniques from fashion capitals worldwide.",
+      },
+      menu: {
+        label: "Price List",
+        title: "Cenník / Price List",
+        sub: "Top-tier quality — transparent pricing",
+      },
+      footer: {
+        tagline: "Hair & Barber Studio",
+        description:
+          "Your Shine, Our Masterpiece — a premium grooming space where every detail is crafted around your confidence.",
+        servicesTitle: "Services",
+        hoursTitle: "Opening Hours",
+        addressTitle: "Address",
+        bookNow: "Book Now",
+        copyright: "All rights reserved.",
+      },
+    },
+    sk: {
+      nav: {
+        about: "O nás",
+        services: "Služby",
+        team: "Náš tím",
+        contact: "Kontakt",
+        book: "Objednať sa",
+      },
+      hero: {
+        eyebrow: "✦ Budapeštianská 38, Ťahanovce ✦",
+        title1: "TVOJ LESK,",
+        title2: "Naše majstrovské dielo.",
+        sub: "Prémiový barber & hair salon — každý strih je originál, každá návšteva nový pocit sebavedomia.",
+        cta: "Objednať sa",
+        scroll: "Objavuj",
+      },
+      story: {
+        label: "Náš príbeh",
+        headingLine1: "Umenie nad",
+        headingLine2: "Každým strihom",
+        p1: "Be. Hair & Barber vznikol z vášne pre kadernícke remeslo a túžby ponúknuť kompletný grooming zážitok, kde sa technika spája s estetikou.",
+        p2: "Každý klient je v rukách majstrov, ktorí rozumejú tvaru tváre, trendom aj osobnému štýlu.",
+        p3: "Veríme, že krása nie je napodobňovanie, ale objavenie a zvýraznenie tej najlepšej verzie seba samého.",
+        stat1: "Rokov skúseností",
+        stat2: "Spokojných klientov",
+        stat3: "Nasadenie",
+      },
+      team: {
+        label: "Náš tím",
+        heading1: "Umelci",
+        heading2: "Za vašim vzhľadom",
+        desc: "Každý člen tímu Be. je odborne vyškolený a neustále sleduje nové trendy aj techniky z módnych metropol.",
+      },
+      menu: {
+        label: "Cenník služieb",
+        title: "Cenník / Price List",
+        sub: "Špičková kvalita — férové ceny",
+      },
+      footer: {
+        tagline: "Hair & Barber Studio",
+        description:
+          "Your Shine, Our Masterpiece — prémiový grooming priestor, kde každý detail je o vašej sebadôvere.",
+        servicesTitle: "Služby",
+        hoursTitle: "Otváracie hodiny",
+        addressTitle: "Adresa",
+        bookNow: "Objednať sa",
+        copyright: "Všetky práva vyhradené.",
+      },
+    },
+  } as const;
+
   return (
-    <main className="min-h-screen bg-[#0b0b0b] text-slate-100 flex flex-col">
-      {/* HERO */}
-      <section className="relative px-4 sm:px-6 lg:px-10 py-12 sm:py-16 lg:py-20">
-        <div className="max-w-5xl mx-auto space-y-10">
-          {/* Logo row */}
-          <div className="flex items-center justify-between gap-6 be-animate-fade-up">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="relative h-10 w-16 sm:h-12 sm:w-20">
-                {/* Đặt file logo vào public/be-logo.svg để dùng path này */}
+    <>
+      <div className="cursor" id="cursor" />
+      <div className="cursor-ring" id="cursorRing" />
+
+      <nav>
+        <a href="#" className="nav-logo">
+          <span className="nav-logo-mark">
+            <img src="/be-logo.svg" alt="Be. Hair &amp; Barber logo" />
+          </span>
+        </a>
+        <ul className="nav-links">
+          <li>
+            <a href="#story">{texts[lang].nav.about}</a>
+          </li>
+          <li>
+            <a href="#menu">{texts[lang].nav.services}</a>
+          </li>
+          <li>
+            <a href="#team">{texts[lang].nav.team}</a>
+          </li>
+          <li>
+            <a href="#contact">{texts[lang].nav.contact}</a>
+          </li>
+        </ul>
+        <div className="nav-actions">
+          <div className="nav-lang-switch">
+            <button
+              type="button"
+              className={lang === "en" ? "active" : ""}
+              onClick={() => setLang("en")}
+            >
+              EN
+            </button>
+            <span>/</span>
+            <button
+              type="button"
+              className={lang === "sk" ? "active" : ""}
+              onClick={() => setLang("sk")}
+            >
+              SK
+            </button>
+          </div>
+          <button className="nav-book" type="button" onClick={goToBooking}>
+            {texts[lang].nav.book}
+          </button>
+        </div>
+      </nav>
+
+      <main>
+        <section className="hero">
+          <div className="hero-bg" />
+          <div className="hero-lines" />
+          <div className="hero-content">
+            <p className="hero-eyebrow">{texts[lang].hero.eyebrow}</p>
+            <h1 className="hero-title">YOUR SHINE,</h1>
+            <h1 className="hero-title-italic">Our Masterpiece.</h1>
+            <div className="hero-divider">
+              <div className="hero-divider-line" />
+              <div className="hero-divider-diamond" />
+              <div className="hero-divider-line right" />
+            </div>
+            <p className="hero-sub">{texts[lang].hero.sub}</p>
+            <a
+              href="https://booking.behairbarber.shop/booking/"
+              className="hero-cta"
+            >
+              <span>{texts[lang].hero.cta}</span>
+              <span className="hero-cta-arrow">→</span>
+            </a>
+          </div>
+          <div className="hero-scroll">
+            <span>{texts[lang].hero.scroll}</span>
+            <div className="scroll-line" />
+          </div>
+        </section>
+
+        <div className="gold-divider" />
+
+        <section className="story" id="story">
+          <div className="story-text reveal">
+            <div style={{ position: "relative" }}>
+              <div className="story-number">Be</div>
+              <div className="section-label">{texts[lang].story.label}</div>
+              <h2>
+                {texts[lang].story.headingLine1}
+                <br />
+                Trên <em>{texts[lang].story.headingLine2}</em>
+              </h2>
+              <p>
+                {texts[lang].story.p1}
+              </p>
+              <p>
+                {texts[lang].story.p2}
+              </p>
+              <p>
+                {texts[lang].story.p3}
+              </p>
+            </div>
+            <div className="story-stats">
+              <div>
+                <span className="stat-num">5+</span>
+                <span className="stat-label">{texts[lang].story.stat1}</span>
+              </div>
+              <div>
+                <span className="stat-num">2K+</span>
+                <span className="stat-label">{texts[lang].story.stat2}</span>
+              </div>
+              <div>
+                <span className="stat-num">100%</span>
+                <span className="stat-label">{texts[lang].story.stat3}</span>
+              </div>
+            </div>
+          </div>
+          <div className="story-visual reveal reveal-delay-2">
+            <div className="story-img-frame">
+              <div className="corner-decor tl" />
+              <div className="corner-decor tr" />
+              <div className="corner-decor bl" />
+              <div className="corner-decor br" />
+              <div className="story-img-inner">
                 <Image
-                  src="/be-logo.svg"
-                  alt="Be. Hair & Barber logo"
+                  src="/be-salon.jpg"
+                  alt="Be. Hair &amp; Barber salon"
                   fill
                   priority
-                  className="object-contain"
+                  className="object-cover"
                 />
-              </div>
-              <div className="leading-tight">
-                <p className="text-xs sm:text-[11px] uppercase tracking-[0.25em] text-slate-400">
-                  Be. Hair &amp; Barber
-                </p>
-                <p className="text-[11px] sm:text-xs text-slate-500">
-                  Your Shine, Our Masterpiece
-                </p>
-              </div>
-            </div>
-            <div className="hidden sm:flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] text-slate-500">
-              <span className="h-px w-10 bg-slate-700" />
-              <span>Košice · Slovakia</span>
-            </div>
-          </div>
 
-          <div className="grid gap-10 lg:grid-cols-[3fr,2fr] items-center">
-            <div className="space-y-6 be-animate-fade-up">
-              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
-                Hair &amp; Barber · Head Spa · Body Massage · Košice
-              </p>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight">
-                <span className="block text-slate-100">Your Shine,</span>
-                <span className="block text-slate-300">
-                  Our{" "}
-                  <span className="be-gold-text">
-                    Masterpiece
-                  </span>
-                </span>
-              </h1>
-              <p className="text-sm sm:text-base text-slate-400 max-w-xl">
-                A modern, premium salon for men and women in the heart of
-                Košice. Haircuts, colour, beards, head spa and body massage in a
-                calm, contemporary space.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 be-animate-fade-up-delay">
-                <Link href={BOOKING_URL} passHref legacyBehavior>
-                  <a>
-                    <Button
-                      size="lg"
-                      className="be-gold-gradient text-black font-semibold px-8 py-6 text-sm tracking-wide rounded-full shadow-[0_0_28px_rgba(0,0,0,0.6)]"
-                    >
-                      Book Appointment
-                    </Button>
-                  </a>
-                </Link>
-                <div className="space-y-1 text-xs text-slate-500 max-w-xs">
-                  <p>
-                    Limited daily slots. Reserve your time and let our team take
-                    care of your hair, scalp and body.
-                  </p>
-                  <p className="text-[11px] be-gold-text">
-                    Hot: Head Spa ritual now available.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative be-animate-fade-up-delay">
-              <div className="rounded-3xl border be-gold-border/60 bg-gradient-to-br from-[#141414] via-[#111111] to-[#050505] p-6 shadow-[0_0_80px_rgba(0,0,0,0.75)]">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                    Košice · Slovakia
-                  </p>
-                  <span className="text-[11px] px-3 py-1 rounded-full border border-[var(--be-gold-start)]/70 bg-[#121212] text-slate-900 be-gold-gradient uppercase tracking-[0.2em]">
-                    Premium
-                  </span>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm text-slate-300">
-                    Fade, beard, or full restyle —
-                    <span className="text-slate-100 font-medium">
-                      {" "}
-                      we refine every detail.
-                    </span>
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    Ambient lighting, curated sound, and skilled hands turn your
-                    visit into a ritual.
-                  </p>
-                </div>
-                <div className="mt-6 grid grid-cols-3 gap-3 text-xs text-slate-300">
-                  <div className="rounded-xl border border-slate-800 bg-[#141414] px-3 py-2">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
-                      Experience
-                    </p>
-                    <p className="mt-1 font-medium">Master barbers</p>
-                  </div>
-                  <div className="rounded-xl border border-slate-800 bg-[#141414] px-3 py-2">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
-                      Booking
-                    </p>
-                    <p className="mt-1 font-medium">Online 24/7</p>
-                  </div>
-                  <div className="rounded-xl border border-slate-800 bg-[#141414] px-3 py-2">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
-                      Location
-                    </p>
-                    <p className="mt-1 font-medium">Budapeštianska 38</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* SERVICES HIGHLIGHT */}
-      <section className="px-4 sm:px-6 lg:px-10 py-12 sm:py-16 bg-gradient-to-b from-[#0b0b0b] to-[#111111] border-y border-slate-900/70">
-        <div className="max-w-5xl mx-auto space-y-8">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div className="gold-divider" />
+
+        <section className="menu-section" id="menu">
+          <div className="menu-bg-text">PRICE LIST</div>
+          <div className="menu-header reveal">
+            <div className="section-label" style={{ justifyContent: "center" }}>
+              {texts[lang].menu.label}
+            </div>
+            <h2>
+              {texts[lang].menu.title.split(" ")[0]}{" "}
+              <span>{texts[lang].menu.title.split(" ").slice(1).join(" ")}</span>
+            </h2>
+            <p>{texts[lang].menu.sub}</p>
+          </div>
+
+          <div className="menu-tabs reveal reveal-delay-1">
+            <button
+              type="button"
+              className={`menu-tab ${activeTab === "mens" ? "active" : ""}`}
+              onClick={() => setActiveTab("mens")}
+            >
+              ✂ Men&apos;s Grooming
+            </button>
+            <button
+              type="button"
+              className={`menu-tab ${activeTab === "womens" ? "active" : ""}`}
+              onClick={() => setActiveTab("womens")}
+            >
+              ♦ Women&apos;s Salon
+            </button>
+            <button
+              type="button"
+              className={`menu-tab ${activeTab === "spa" ? "active" : ""}`}
+              onClick={() => setActiveTab("spa")}
+            >
+              ◈ Head Spa
+            </button>
+            <button
+              type="button"
+              className={`menu-tab ${activeTab === "massage" ? "active" : ""}`}
+              onClick={() => setActiveTab("massage")}
+            >
+              ❧ Body Massage
+            </button>
+          </div>
+
+          <div
+            className={`menu-grid ${activeTab === "mens" ? "active" : ""}`}
+            id="tab-mens"
+          >
+            <div className="menu-item reveal">
+              <div className="menu-item-info">
+                <div className="menu-item-time">30 min</div>
+                <div className="menu-item-name">KLASICKÝ STRIH</div>
+                <div className="menu-item-desc">
+                  Classic Haircut — strih strojčekom, nožnicami, umytie vlasov,
+                  styling
+                </div>
+              </div>
+              <div className="menu-item-price">15€</div>
+            </div>
+            <div className="menu-item reveal reveal-delay-1">
+              <div className="menu-item-info">
+                <div className="menu-item-time">40 min</div>
+                <div className="menu-item-name">STRIH DLHÝCH VLASOV</div>
+                <div className="menu-item-desc">
+                  Long Haircut over 20cm — strih nožnicami, umytie vlasov,
+                  styling
+                </div>
+              </div>
+              <div className="menu-item-price">18€</div>
+            </div>
+            <div className="menu-item reveal">
+              <div className="menu-item-info">
+                <div className="menu-item-time">30 min</div>
+                <div className="menu-item-name">DETSKÝ STRIH</div>
+                <div className="menu-item-desc">
+                  Kids Haircut — deti do 13 rokov
+                </div>
+              </div>
+              <div className="menu-item-price">10€</div>
+            </div>
+            <div className="menu-item reveal reveal-delay-1">
+              <div className="menu-item-info">
+                <div className="menu-item-time">30 min</div>
+                <div className="menu-item-name">ÚPRAVA BRADY BRITVOU</div>
+                <div className="menu-item-desc">Straight Razor Beard Trim</div>
+              </div>
+              <div className="menu-item-price">12€</div>
+            </div>
+            <div className="menu-item reveal">
+              <div className="menu-item-info">
+                <div className="menu-item-time">45 min</div>
+                <div className="menu-item-name">
+                  KOMBINÁCIA STRIH + ÚPRAVA BRADY
+                </div>
+                <div className="menu-item-desc">
+                  Combo: Haircut + Beard Trim
+                </div>
+              </div>
+              <div className="menu-item-price">25€</div>
+            </div>
+            <div className="menu-item reveal reveal-delay-1">
+              <div className="menu-item-info">
+                <div className="menu-item-time">25 min</div>
+                <div className="menu-item-name">FARBENIE ŠEDÍN</div>
+                <div className="menu-item-desc">Grey Hair Coverage</div>
+              </div>
+              <div className="menu-item-price">20€</div>
+            </div>
+            <div className="menu-item reveal">
+              <div className="menu-item-info">
+                <div className="menu-item-time">60 min</div>
+                <div className="menu-item-name">ODFARBOVANIE VLASOV</div>
+                <div className="menu-item-desc">Hair Bleaching</div>
+              </div>
+              <div className="menu-item-price">40€</div>
+            </div>
+            <div className="menu-item reveal reveal-delay-1">
+              <div className="menu-item-info">
+                <div className="menu-item-time">40 min</div>
+                <div className="menu-item-name">
+                  KLASICKÉ FARBENIE VLASOV
+                </div>
+                <div className="menu-item-desc">Classic Hair Coloring</div>
+              </div>
+              <div className="menu-item-price">25€</div>
+            </div>
+            <div className="menu-item reveal">
+              <div className="menu-item-info">
+                <div className="menu-item-time">—</div>
+                <div className="menu-item-name">TRVALÁ ONDULÁCIA VLASOV</div>
+                <div className="menu-item-desc">Men&apos;s Perm</div>
+              </div>
+              <div className="menu-item-price">
+                <small>od </small>35€
+              </div>
+            </div>
+          </div>
+
+          <div
+            className={`menu-grid ${activeTab === "womens" ? "active" : ""}`}
+            id="tab-womens"
+          >
+            <div className="menu-item reveal">
+              <div className="menu-item-info">
+                <div className="menu-item-time">20 min</div>
+                <div className="menu-item-name">FÚKANÁ VLASOV</div>
+                <div className="menu-item-desc">
+                  Blow Dry — umytie, sušenie, styling
+                </div>
+              </div>
+              <div className="menu-item-price">12€</div>
+            </div>
+            <div className="menu-item reveal reveal-delay-1">
+              <div className="menu-item-info">
+                <div className="menu-item-time">45 min</div>
+                <div className="menu-item-name">
+                  STRIHANIE KOMPLET KRÁTKE VLASY
+                </div>
+                <div className="menu-item-desc">
+                  Signature Short Cut — umytie, strih, sušenie, styling
+                </div>
+              </div>
+              <div className="menu-item-price">17€</div>
+            </div>
+            <div className="menu-item reveal">
+              <div className="menu-item-info">
+                <div className="menu-item-time">45 min</div>
+                <div className="menu-item-name">
+                  STRIHANIE KOMPLET DLHÉ VLASY
+                </div>
+                <div className="menu-item-desc">
+                  Signature Long Cut — umytie, strih, sušenie, styling
+                </div>
+              </div>
+              <div className="menu-item-price">22€</div>
+            </div>
+            <div className="menu-item reveal reveal-delay-1">
+              <div className="menu-item-info">
+                <div className="menu-item-time">80–120 min</div>
+                <div className="menu-item-name">
+                  FARBENIE BEZ ODFARBOVANIA
+                </div>
+                <div className="menu-item-desc">
+                  Essential Color — umytie, sušenie, styling
+                </div>
+              </div>
+              <div className="menu-item-price">
+                <small>od </small>50€
+              </div>
+            </div>
+            <div className="menu-item reveal">
+              <div className="menu-item-info">
+                <div className="menu-item-time">60–90 min</div>
+                <div className="menu-item-name">MELÍR</div>
+                <div className="menu-item-desc">
+                  Highlights — umytie, sušenie, styling
+                </div>
+              </div>
+              <div className="menu-item-price">
+                <small>od </small>55€
+              </div>
+            </div>
+            <div className="menu-item reveal reveal-delay-1">
+              <div className="menu-item-info">
+                <div className="menu-item-time">120–400 min</div>
+                <div className="menu-item-name">BALAYAGE</div>
+                <div className="menu-item-desc">
+                  Balayage — umytie, sušenie, styling
+                </div>
+              </div>
+              <div className="menu-item-price">
+                <small>od </small>80€
+              </div>
+            </div>
+            <div className="menu-item reveal">
+              <div className="menu-item-info">
+                <div className="menu-item-time">60–300 min</div>
+                <div className="menu-item-name">
+                  TRVALÁ ONDULÁCIA VLASOV
+                </div>
+                <div className="menu-item-desc">
+                  Perm — umytie, sušenie, styling
+                </div>
+              </div>
+              <div className="menu-item-price">
+                <small>od </small>40€
+              </div>
+            </div>
+            <div className="menu-item reveal reveal-delay-1">
+              <div className="menu-item-info">
+                <div className="menu-item-time">240–400 min</div>
+                <div className="menu-item-name">VYROVNÁVANIE VLASOV</div>
+                <div className="menu-item-desc">
+                  Hair Straightening Treatment — vyrovnávacia kúra
+                </div>
+              </div>
+              <div className="menu-item-price">
+                <small>od </small>65€
+              </div>
+            </div>
+            <div className="menu-item reveal">
+              <div className="menu-item-info">
+                <div className="menu-item-time">60–90 min</div>
+                <div className="menu-item-name">KERATÍNOVA REGENERÁCIA</div>
+                <div className="menu-item-desc">
+                  Keratin Regeneration — umytie, sušenie, keratínová kúra
+                </div>
+              </div>
+              <div className="menu-item-price">
+                <small>od </small>35€
+              </div>
+            </div>
+            <div className="menu-item reveal reveal-delay-1">
+              <div className="menu-item-info">
+                <div className="menu-item-time">60 min</div>
+                <div className="menu-item-name">KOLAGÉNOVA KÚRA</div>
+                <div className="menu-item-desc">Collagen Treatment</div>
+              </div>
+              <div className="menu-item-price">
+                <small>od </small>15€
+              </div>
+            </div>
+          </div>
+
+          <div
+            className={`menu-grid ${activeTab === "spa" ? "active" : ""}`}
+            id="tab-spa"
+          >
+            <div className="menu-item reveal">
+              <div className="menu-item-info">
+                <div className="menu-item-time">60 min</div>
+                <div className="menu-item-name">CLASSIC HEAD SPA</div>
+                <div className="menu-item-desc">
+                  Umytie vlasov, relaxačná masáž hlavy, tváre, šije a ramien,
+                  rúk
+                </div>
+              </div>
+              <div className="menu-item-price">40€</div>
+            </div>
+            <div className="menu-item reveal reveal-delay-1">
+              <div className="menu-item-info">
+                <div className="menu-item-time">75 min</div>
+                <div className="menu-item-name">STANDARD HEAD SPA</div>
+                <div className="menu-item-desc">
+                  Umytie vlasov, relaxačná masáž hlavy, tváre, šije a ramien,
+                  dekoltu, chrbta, rúk, maska na tvár, teplé obklady na oči
+                </div>
+              </div>
+              <div className="menu-item-price">55€</div>
+            </div>
+            <div className="menu-item reveal">
+              <div className="menu-item-info">
+                <div className="menu-item-time">90 min</div>
+                <div className="menu-item-name">LUXURY HEAD SPA</div>
+                <div className="menu-item-desc">
+                  Odstránenie make-upu, umývanie tváre, umytie vlasov šampónom,
+                  relaxačná masáž hlavy, tváre, šije, ramien, dekoltu, chrbta,
+                  horných a dolných končatín, teplé obklady na oči, maska na
+                  tvár
+                </div>
+              </div>
+              <div className="menu-item-price">65€</div>
+            </div>
+          </div>
+
+          <div
+            className={`menu-grid ${activeTab === "massage" ? "active" : ""}`}
+            id="tab-massage"
+          >
+            <div className="menu-item reveal">
+              <div className="menu-item-info">
+                <div className="menu-item-time">60 min</div>
+                <div className="menu-item-name">
+                  RELAXAČNÁ MASÁŽ CELÉHO TELA
+                </div>
+                <div className="menu-item-desc">
+                  Relaxing Full Body Massage — masáž hlavy, chrbta, rúk, nôh
+                </div>
+              </div>
+              <div className="menu-item-price">40€</div>
+            </div>
+            <div className="menu-item reveal reveal-delay-1">
+              <div className="menu-item-info">
+                <div className="menu-item-time">90 min</div>
+                <div className="menu-item-name">
+                  TERAPEUTICKÁ MASÁŽ CELÉHO TELA
+                </div>
+                <div className="menu-item-desc">
+                  Therapeutic Full Body Massage — pôsobí hlboko na svalové
+                  skupiny krku, šije, ramien, chrbta a dolných končatín
+                </div>
+              </div>
+              <div className="menu-item-price">60€</div>
+            </div>
+          </div>
+        </section>
+
+        <div className="gold-divider" />
+
+        <section className="team-section" id="team">
+          <div className="team-header reveal">
             <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-slate-500">
-                Top services
-              </p>
-              <h2 className="mt-2 text-2xl sm:text-3xl font-semibold text-slate-100 be-animate-fade-up">
-                Najčastejšie rezervované služby.
+              <div className="section-label">{texts[lang].team.label}</div>
+              <h2>
+                {texts[lang].team.heading1}
+                <br />
+                <em>{texts[lang].team.heading2}</em>
               </h2>
             </div>
-            <div className="text-xs text-slate-500 max-w-sm">
-              Three services our guests book the most – a classic men&apos;s
-              cut, bright dimension with melír, and a deeply relaxing head spa
-              ritual.
-            </div>
+            <p>{texts[lang].team.desc}</p>
           </div>
+          <div className="team-grid">
+            {team.map((member, index) => (
+              <div
+                key={member.name}
+                className={`team-card reveal${
+                  index === 1 ? " reveal-delay-1" : index === 2 ? " reveal-delay-2" : ""
+                }`}
+              >
+                <div className="team-card-visual">
+                  <Image
+                    src={member.avatarSrc}
+                    alt={member.avatarAlt}
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="team-card-overlay">
+                    <div className="team-name">{member.name}</div>
+                    <div className="team-role">{member.role}</div>
+                    <div className="team-desc">{member.bio[lang]}</div>
+                    <div className="team-skills">
+                      <span className="team-skill">{member.focus[lang]}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="team-card-info">
+                  <div className="team-name" style={{ fontSize: 15 }}>
+                    {member.name}
+                  </div>
+                  <div className="team-role">{member.role}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
 
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((service) => {
-              const Icon = service.icon;
-              return (
-                <Card
-                  key={service.id}
-                  className="group relative border border-slate-800 bg-[#111111] hover:be-gold-border transition-all duration-200 hover:-translate-y-1 be-animate-fade-up be-card-soft-float"
+
+        <footer id="contact">
+          <div className="footer-top">
+            <div className="footer-brand">
+              <h3>Be.</h3>
+              <p className="tagline">{texts[lang].footer.tagline}</p>
+              <p>{texts[lang].footer.description}</p>
+              <a
+                href="https://booking.behairbarber.shop/booking/"
+                className="footer-book-btn"
+              >
+                {texts[lang].footer.bookNow}
+              </a>
+              <div className="footer-social">
+                <a
+                  href="https://instagram.com/be.hairbarber"
+                  className="social-btn"
+                  title="Instagram"
                 >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <CardTitle className="text-base font-semibold text-slate-100">
-                        {service.name}
-                      </CardTitle>
-                      <div className="h-9 w-9 rounded-full border border-[var(--be-gold-start)]/60 bg-[#181818] flex items-center justify-center text-slate-900 be-gold-gradient be-gold-animated">
-                        <Icon className="h-4 w-4" />
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <p className="text-xs text-slate-400">
-                      {service.description}
-                    </p>
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="px-2 py-1 rounded-full bg-[#151515] text-slate-300 border border-slate-800">
-                        {service.duration}
-                      </span>
-                      <span className="font-semibold be-gold-text">
-                        {service.price}
-                      </span>
-                    </div>
-                    <div className="pt-3 border-t border-slate-800 flex justify-between items-center">
-                      <Link href={BOOKING_URL} passHref legacyBehavior>
-                        <a className="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-400 group-hover:be-gold-text">
-                          Book appointment
-                        </a>
-                      </Link>
-                      <span className="h-1 w-8 rounded-full bg-slate-800 group-hover:be-gold-gradient transition-colors" />
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* PRICE LIST – DEMO TABLE BASED ON CENNÍK */}
-      <section className="px-4 sm:px-6 lg:px-10 py-12 sm:py-16 bg-[#0b0b0b]">
-        <div className="max-w-5xl mx-auto space-y-8">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-slate-500">
-                Cenník / Price List
-              </p>
-              <h2 className="mt-2 text-2xl sm:text-3xl font-semibold text-slate-100">
-                Clear, honest pricing.
-              </h2>
-            </div>
-            <p className="text-xs text-slate-500 max-w-sm">
-              Below is a demo of the Be. Hair &amp; Barber price structure. You
-              can freely edit the HTML to match the exact official Cenník.
-            </p>
-          </div>
-
-          <div className="grid gap-8 lg:grid-cols-2 text-xs sm:text-sm">
-            {/* Men's grooming + Head spa */}
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-sm font-semibold tracking-[0.2em] uppercase text-slate-300">
-                  PÁNSKE HOLIČSTVO
-                </h3>
-                <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">
-                  MEN&apos;S GROOMING
-                </p>
-                <div className="mt-3 h-px w-16 be-gold-gradient rounded-full" />
-              </div>
-
-              <div className="space-y-2">
-                <PriceRow
-                  label="Klasický strih (30 min)"
-                  note="Classic Haircut | umytie vlasov, styling"
-                  price="15€"
-                />
-                <PriceRow
-                  label="Strih dlhých vlasov nad 20 cm (40 min)"
-                  note="Long Haircut over 20 cm | umytie vlasov, styling"
-                  price="18€"
-                />
-                <PriceRow
-                  label="Detský strih (30 min)"
-                  note="Kids Haircut | deti do 13 rokov"
-                  price="10€"
-                />
-                <PriceRow
-                  label="Úprava brady britvou (30 min)"
-                  note="Straight Razor Beard Trim"
-                  price="12€"
-                />
-                <PriceRow
-                  label="Kombinácia: strih + úprava brady (45 min)"
-                  note="Combo: Haircut + Beard Trim"
-                  price="25€"
-                />
-                <PriceRow
-                  label="Farbenie šedín (25 min)"
-                  note="Grey Hair Coverage"
-                  price="20€"
-                />
-                <PriceRow
-                  label="Klasické farbenie vlasov (40 min)"
-                  note="Classic Hair Coloring"
-                  price="25€"
-                />
-                <PriceRow
-                  label="Trvalá ondulácia vlasov"
-                  note="Men&apos;s Perm"
-                  price="od 35€"
-                />
-              </div>
-
-              <div className="pt-4 border-t border-slate-800 space-y-3">
-                <div>
-                  <h3 className="text-sm font-semibold tracking-[0.2em] uppercase text-slate-300">
-                    HEAD SPA
-                  </h3>
-                  <div className="mt-2 h-px w-16 be-gold-gradient rounded-full" />
-                </div>
-                <div className="space-y-2">
-                  <PriceRow
-                    label="Classic Head Spa (60 min)"
-                    note="Umytie vlasov, relaxačná masáž hlavy, tváre, šije a ramien"
-                    price="40€"
-                  />
-                  <PriceRow
-                    label="Standard Head Spa (75 min)"
-                    note="Rituál s maskou na tvár, teplé obklady na oči"
-                    price="55€"
-                  />
-                  <PriceRow
-                    label="Luxury Head Spa (90 min)"
-                    note="Rozšírený rituál s masážou chrbta a dekoltu"
-                    price="65€"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Women's salon + Body massage */}
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-sm font-semibold tracking-[0.2em] uppercase text-slate-300">
-                  DÁMSKE KADEPNÍCTVO
-                </h3>
-                <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">
-                  WOMEN&apos;S HAIR SALON
-                </p>
-                <div className="mt-3 h-px w-16 be-gold-gradient rounded-full" />
-              </div>
-
-              <div className="space-y-2">
-                <PriceRow
-                  label="Fúkaná vlasov (20 min)"
-                  note="Blow Dry | umytie, sušenie, styling"
-                  price="12€"
-                />
-                <PriceRow
-                  label="Strihanie krátke vlasy (45 min)"
-                  note="Signature Short Cut | umytie, strih, sušenie, styling"
-                  price="18€"
-                />
-                <PriceRow
-                  label="Strihanie dlhé vlasy nad 20 cm (45 min)"
-                  note="Signature Long Cut | umytie, strih, sušenie, styling"
-                  price="22€"
-                />
-                <PriceRow
-                  label="Farbenie bez odfarbovania (80–120 min)"
-                  note="Essential Color | umytie, sušenie, styling"
-                  price="50€"
-                />
-                <PriceRow
-                  label="Melír (60–90 min)"
-                  note="Highlights | umytie, sušenie, styling"
-                  price="od 55€"
-                />
-                <PriceRow
-                  label="Balayage (120–400 min)"
-                  note="Balayage / Ombre | umytie, sušenie, styling"
-                  price="od 110€"
-                />
-                <PriceRow
-                  label="Trvalá ondulácia vlasov (60–90 min)"
-                  note="Permanent Waves | styling included"
-                  price="od 60€"
-                />
-              </div>
-
-              <div className="pt-4 border-t border-slate-800 space-y-3">
-                <div>
-                  <h3 className="text-sm font-semibold tracking-[0.2em] uppercase text-slate-300">
-                    MASÁŽ TELA
-                  </h3>
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">
-                    BODY MASSAGE
-                  </p>
-                  <div className="mt-2 h-px w-16 be-gold-gradient rounded-full" />
-                </div>
-                <div className="space-y-2">
-                  <PriceRow
-                    label="Relaxačná masáž celého tela (60 min)"
-                    note="Relaxing Full Body Massage"
-                    price="40€"
-                  />
-                  <PriceRow
-                    label="Terapeutická masáž celého tela (90 min)"
-                    note="Therapeutic Full Body Massage"
-                    price="60€"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <p className="text-[11px] text-slate-500">
-            * All services are subject to consultation. Final price depends on
-            hair length, technique and product use. Please adjust this text and
-            the table HTML to match the official Be. Hair &amp; Barber cenník.
-          </p>
-        </div>
-      </section>
-
-      {/* ABOUT / VIBE + TEAM */}
-      <section className="px-4 sm:px-6 lg:px-10 py-14 sm:py-18 lg:py-20 bg-[#0b0b0b]">
-        <div className="max-w-5xl mx-auto space-y-12">
-          <div className="grid gap-8 md:grid-cols-[3fr,2fr] items-start">
-            <div className="space-y-4">
-              <p className="text-xs uppercase tracking-[0.25em] text-slate-500">
-                The Be. Vibe
-              </p>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-slate-100">
-                Modern. Minimal. Masculine.
-              </h2>
-              <p className="text-sm text-slate-400">
-                Be. Hair &amp; Barber is built for guests who care about detail.
-                From the moment you step in, the space is designed to help you
-                disconnect — warm lighting, refined materials, and calm energy.
-              </p>
-              <p className="text-sm text-slate-400">
-                Our team combines classic craft with contemporary technique.
-                Every cut, fade, colour and shave is done with intention — so
-                you leave feeling sharper, lighter, and ready.
-              </p>
-            </div>
-            <div className="space-y-4 text-sm text-slate-300">
-              <div className="rounded-2xl border border-slate-800 bg-[#111111] px-4 py-4">
-                <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500 mb-2">
-                  What to expect
-                </p>
-                <ul className="space-y-2 text-xs text-slate-400">
-                  <li>· One-on-one attention with your barber or stylist.</li>
-                  <li>· Precise consultation before every service.</li>
-                  <li>· Clean, minimal interior with ambient music.</li>
-                  <li>· Products selected for performance and comfort.</li>
-                </ul>
-              </div>
-              <Link href={BOOKING_URL} passHref legacyBehavior>
-                <a className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.16em] uppercase be-gold-text">
-                  <Wand2 className="h-4 w-4 text-[var(--be-gold-start)]" />
-                  Book your ritual in Košice
+                  ig
                 </a>
-              </Link>
-            </div>
-          </div>
-
-          {/* Team cards */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between gap-4">
-              <h3 className="text-sm sm:text-base font-semibold tracking-[0.2em] uppercase text-slate-300">
-                Our team
-              </h3>
-              <span className="hidden sm:inline text-[11px] text-slate-500">
-                Demo content – freely edit names, roles and bios in HTML.
-              </span>
-            </div>
-            <div className="grid gap-4 md:grid-cols-3">
-              {team.map((member) => (
-                <Card
-                  key={member.name}
-                  className="border border-slate-800 bg-[#101010]"
+                <a
+                  href="https://www.facebook.com/profile.php?id=61586703411435"
+                  className="social-btn"
+                  title="Facebook"
                 >
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-semibold text-slate-100">
-                      {member.name}
-                    </CardTitle>
-                    <p className="text-[11px] uppercase tracking-[0.18em] be-gold-text">
-                      {member.role}
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <p className="text-xs text-slate-400">{member.bio}</p>
-                    <p className="text-[11px] text-slate-500">
-                      {member.focus}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
+                  fb
+                </a>
+              </div>
+            </div>
+            <div className="footer-col">
+              <h4>{texts[lang].footer.servicesTitle}</h4>
+              <ul>
+                <li>
+                  <a href="#menu">Men&apos;s Grooming</a>
+                </li>
+                <li>
+                  <a href="#menu">Women&apos;s Salon</a>
+                </li>
+                <li>
+                  <a href="#menu">Head Spa</a>
+                </li>
+                <li>
+                  <a href="#menu">Body Massage</a>
+                </li>
+              </ul>
+            </div>
+            <div className="footer-col">
+              <h4>{texts[lang].footer.hoursTitle}</h4>
+              <div className="hours-row">
+                <span>Pon – Pia</span>
+                <span className="hours-time">9:00 – 19:00</span>
+              </div>
+              <div className="hours-row">
+                <span>Sobota</span>
+                <span className="hours-time">9:00 – 18:00</span>
+              </div>
+              <div className="hours-row">
+                <span>Nedeľa</span>
+                <span className="hours-time">10:00 – 17:00</span>
+              </div>
+            </div>
+            <div className="footer-col">
+              <h4>{texts[lang].footer.addressTitle}</h4>
+              <p>
+                Budapeštianská 38
+                <br />
+                Ťahanovce, Slovakia
+              </p>
+              <p className="footer-phone">
+                <a href="tel:0944490503" className="footer-phone-link">
+                  0944 490 503
+                </a>
+              </p>
+              <p className="footer-handle">
+                <a
+                  href="https://instagram.com/be.hairbarber"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  @be.hairbarber
+                </a>
+              </p>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="mt-auto px-4 sm:px-6 lg:px-10 py-8 border-t border-slate-900 bg-[#050505]">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row gap-6 sm:items-center sm:justify-between text-xs text-slate-400">
-          <div>
-            <p className="font-medium text-slate-200">Be. Hair &amp; Barber</p>
-            <p>Budapeštianska 38, Ťahanovce, Košice</p>
-            <p className="mt-1 text-[11px] text-slate-500">
-              Your Shine, Our Masterpiece.
+          <div className="footer-bottom">
+            <p>
+              © 2026 <span className="gold-text">Be. Hair &amp; Barber</span>.
+              {` ${texts[lang].footer.copyright}`}
+            </p>
+            <p className="footer-credit">
+              Designed by{" "}
+              <a
+                href="https://www.instagram.com/vt.phh"
+                target="_blank"
+                rel="noreferrer"
+                className="gold-text"
+              >
+                Aiden Pham
+              </a>{" "}
+              <span className="gold-text">♦</span> for excellence
             </p>
           </div>
-
-          <div>
-            <p className="font-medium text-slate-200 mb-1">Opening hours</p>
-            <p>Mon–Fri: 09:00 – 19:00</p>
-            <p>Sat: 09:00 – 18:00</p>
-            <p>Sun: 10:00 – 17:00</p>
-          </div>
-
-          <div className="space-y-2">
-            <p className="font-medium text-slate-200">Connect</p>
-            <div className="flex flex-col gap-1">
-              <a
-                href="https://www.instagram.com/be.hairbarber"
-                target="_blank"
-                rel="noreferrer"
-                className="hover:be-gold-text"
-              >
-                Instagram
-              </a>
-              <a
-                href="https://www.facebook.com/Be.HairBarber"
-                target="_blank"
-                rel="noreferrer"
-                className="hover:be-gold-text"
-              >
-                Facebook
-              </a>
-              <a
-                href={BOOKING_URL}
-                className="mt-2 inline-flex items-center text-[11px] uppercase tracking-[0.2em] be-gold-text"
-              >
-                Book appointment
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </main>
-  );
-}
-
-type PriceRowProps = {
-  label: string;
-  note?: string;
-  price: string;
-};
-
-function PriceRow({ label, note, price }: PriceRowProps) {
-  return (
-    <div className="flex items-start justify-between gap-4">
-      <div className="flex-1">
-        <p className="text-slate-200 text-xs sm:text-sm">{label}</p>
-        {note && (
-          <p className="text-[11px] text-slate-500 mt-0.5">{note}</p>
-        )}
-      </div>
-      <p className="text-xs sm:text-sm be-gold-text whitespace-nowrap">
-        {price}
-      </p>
-    </div>
+        </footer>
+      </main>
+    </>
   );
 }
 
