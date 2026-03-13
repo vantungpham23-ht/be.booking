@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 4%;
+  --foreground: 210 40% 98%;
+
+  --card: 0 0% 7%;
+  --card-foreground: 210 40% 98%;
+
+  --border: 220 14% 20%;
+  --input: 220 14% 18%;
+  --ring: 46 63% 53%;
+
+  --primary: 46 63% 53%;
+  --primary-foreground: 0 0% 5%;
+
+  --secondary: 220 14% 16%;
+  --secondary-foreground: 210 40% 98%;
+
+  --muted: 220 14% 13%;
+  --muted-foreground: 215 20% 65%;
+
+  --accent: 40 46% 57%;
+  --accent-foreground: 0 0% 5%;
+
+  /* Gold gradient extracted from logo */
+  --be-gold-start: #ab832e;
+  --be-gold-mid: #ede583;
+  --be-gold-end: #ab832e;
+}
+
+* {
+  @apply border-border;
+}
+
+body {
+  @apply bg-[#0b0b0b] text-foreground antialiased;
+}
+
+.be-gold-gradient {
+  background-image: linear-gradient(
+    120deg,
+    var(--be-gold-start) 0%,
+    var(--be-gold-mid) 50%,
+    var(--be-gold-end) 100%
+  );
+}
+
+.be-gold-border {
+  border-color: var(--be-gold-start);
+}
+
+.be-gold-text {
+  background-image: linear-gradient(
+    120deg,
+    var(--be-gold-start),
+    var(--be-gold-mid),
+    var(--be-gold-end)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes be-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes be-soft-float {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes be-gold-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 120% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .be-animate-fade-up {
+    animation: be-fade-up 600ms ease-out both;
+  }
+
+  .be-animate-fade-up-delay {
+    animation: be-fade-up 700ms ease-out both;
+  }
+
+  .be-card-soft-float:hover {
+    animation: be-soft-float 1600ms ease-in-out infinite;
+  }
+
+  .be-gold-animated {
+    background-size: 200% 200%;
+    animation: be-gold-shimmer 2800ms linear infinite;
+  }
+}
+
+
+
