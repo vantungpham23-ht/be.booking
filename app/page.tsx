@@ -393,7 +393,7 @@ export default function HomePage() {
           <div className="special-combos reveal">
             <div className="special-combo-card">
               <div className="special-combo-title">
-                BE SPECIAL COMBO PRE MUZOV <span>(60 MIN)</span>
+                BE SPECIAL COMBO PRE MUŽOV <span>(60 MIN)</span>
               </div>
               <div className="special-combo-desc">
                 Strih, umytie vlasov, masaz hlavy a sije, maska na tvar,
@@ -403,7 +403,7 @@ export default function HomePage() {
             </div>
             <div className="special-combo-card">
               <div className="special-combo-title">
-                BE SPECIAL COMBO PRE ZENY <span>(90-120 MIN)</span>
+                BE SPECIAL COMBO PRE ŽENY <span>(90-120 MIN)</span>
               </div>
               <div className="special-combo-desc">
                 Umytie vlasov, masaz hlavy a sije, kolagenova kura, maska na
