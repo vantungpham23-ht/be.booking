@@ -740,6 +740,70 @@ nav {
   margin-inline: auto;
 }
 
+.special-combos {
+  max-width: 1200px;
+  margin: 0 auto 36px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.special-combo-card {
+  position: relative;
+  border: 1px solid rgba(201, 168, 76, 0.8);
+  background:
+    linear-gradient(140deg, rgba(201, 168, 76, 0.06), rgba(201, 168, 76, 0.01)),
+    rgba(10, 10, 10, 0.9);
+  padding: 20px 22px;
+  overflow: hidden;
+}
+
+.special-combo-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(237, 229, 131, 0.15), transparent 55%);
+  pointer-events: none;
+}
+
+.special-combo-title {
+  font-size: 14px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+
+.special-combo-title span {
+  color: var(--gold);
+}
+
+.special-combo-desc {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--white-dim);
+  max-width: calc(100% - 92px);
+}
+
+.special-combo-price {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1;
+  background-image: linear-gradient(
+    120deg,
+    var(--be-gold-start) 0%,
+    var(--be-gold-mid) 50%,
+    var(--be-gold-end) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 .menu-tab {
   padding: 14px 36px;
   font-size: 11px;
@@ -1466,6 +1530,27 @@ footer {
   .menu-tab {
     flex: 1 0 50%;
     text-align: center;
+  }
+
+  .special-combos {
+    grid-template-columns: 1fr;
+    margin-bottom: 28px;
+  }
+
+  .special-combo-card {
+    padding: 16px 16px 72px;
+  }
+
+  .special-combo-desc {
+    max-width: 100%;
+  }
+
+  .special-combo-price {
+    right: 16px;
+    top: auto;
+    bottom: 14px;
+    transform: none;
+    font-size: 34px;
   }
 
   .team-grid {

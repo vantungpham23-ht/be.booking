@@ -4,7 +4,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-type MenuTab = "mens" | "womens" | "spa" | "massage";
+type MenuTab = "mens" | "womens" | "spa" | "massage" | "eyebrow";
 type Lang = "en" | "sk";
 
 type TeamMember = {
@@ -27,28 +27,28 @@ const team: TeamMember[] = [
     name: "Quan K.",
     role: "Master Barber",
     bio: {
-      en: "Men's grooming specialist with 8+ years of experience. Master of classic fades and modern beard design.",
-      sk: "Špecialista na pánske strihy s viac ako 8 rokmi skúseností. Majster klasických fade strihov a modernej úpravy brady.",
+      en: "Men's grooming specialist with 3+ years of experience. Master of classic fades and modern beard design.",
+      sk: "Špecialista na pánske strihy s viac ako 3 rokmi skúseností. Majster klasických fade strihov a modernej úpravy brady.",
     },
     focus: {
       en: "Men's grooming · Skin fades · Beard design",
       sk: "Pánsky grooming · Skin fades · Úprava brady",
     },
-    avatarSrc: "/team-marek.png",
+    avatarSrc: "/quan.JPG",
     avatarAlt: "Marek V. – Master Barber tại Be. Hair & Barber",
   },
   {
     name: "Son Ngo.",
-    role: "Color Specialist",
+    role: "Master Barber",
     bio: {
-      en: "Color artist with international certification. Expert in balayage, natural highlights and advanced coloring techniques.",
-      sk: "Farebný umelec s medzinárodnou certifikáciou. Expert na balayage, prirodzené melíry a pokročilé farbiace techniky.",
+      en: "Men's grooming specialist with 2+ years of experience. Master of classic fades and modern beard design",
+      sk: "Špecialista na pánske strihy s viac ako 2 rokmi skúseností. Majster klasických fade strihov a modernej úpravy brady.",
     },
     focus: {
-      en: "Salon cuts · Balayage & melír · Long hair styling",
-      sk: "Dámske strihy · Balayage & melír · Úprava dlhých vlasov",
+      en: "Men's grooming · Skin fades · Beard design",
+      sk: "Pánsky grooming · Skin fades · Úprava brady",
     },
-    avatarSrc: "/team-marek.png",
+    avatarSrc: "/son.JPG",
     avatarAlt: "Lucia K. – Color Specialist tại Be. Hair & Barber",
   },
   {
@@ -62,7 +62,7 @@ const team: TeamMember[] = [
       en: "Head spa · Massage · Keratin",
       sk: "Head spa · Masáž · Keratín",
     },
-    avatarSrc: "/team-marek.png",
+    avatarSrc: "/hank.JPG",
     avatarAlt: "Jana M. – Head Spa Expert tại Be. Hair & Barber",
   },
 ];
@@ -390,6 +390,29 @@ export default function HomePage() {
             <p>{texts[lang].menu.sub}</p>
           </div>
 
+          <div className="special-combos reveal">
+            <div className="special-combo-card">
+              <div className="special-combo-title">
+                BE SPECIAL COMBO PRE MUZOV <span>(60 MIN)</span>
+              </div>
+              <div className="special-combo-desc">
+                Strih, umytie vlasov, masaz hlavy a sije, maska na tvar,
+                susenie a zaverecny styling
+              </div>
+              <div className="special-combo-price">35€</div>
+            </div>
+            <div className="special-combo-card">
+              <div className="special-combo-title">
+                BE SPECIAL COMBO PRE ZENY <span>(90-120 MIN)</span>
+              </div>
+              <div className="special-combo-desc">
+                Umytie vlasov, masaz hlavy a sije, kolagenova kura, maska na
+                tvar, susenie vlasov prof. fenom Dyson, zaverecny styling
+              </div>
+              <div className="special-combo-price">65€</div>
+            </div>
+          </div>
+
           <div className="menu-tabs reveal reveal-delay-1">
             <button
               type="button"
@@ -418,6 +441,13 @@ export default function HomePage() {
               onClick={() => setActiveTab("massage")}
             >
               ❧ Body Massage
+            </button>
+            <button
+              type="button"
+              className={`menu-tab ${activeTab === "eyebrow" ? "active" : ""}`}
+              onClick={() => setActiveTab("eyebrow")}
+            >
+              ◉ Eyebrow
             </button>
           </div>
 
@@ -463,7 +493,9 @@ export default function HomePage() {
                 <div className="menu-item-name">ÚPRAVA BRADY BRITVOU</div>
                 <div className="menu-item-desc">Straight Razor Beard Trim</div>
               </div>
-              <div className="menu-item-price">12€</div>
+              <div className="menu-item-price">
+                <small>od </small>5-10€
+              </div>
             </div>
             <div className="menu-item reveal">
               <div className="menu-item-info">
@@ -527,35 +559,23 @@ export default function HomePage() {
                   Blow Dry — umytie, sušenie, styling
                 </div>
               </div>
-              <div className="menu-item-price">12€</div>
+              <div className="menu-item-price">15€</div>
             </div>
             <div className="menu-item reveal reveal-delay-1">
               <div className="menu-item-info">
                 <div className="menu-item-time">45 min</div>
                 <div className="menu-item-name">
-                  STRIHANIE KOMPLET KRÁTKE VLASY
+                  STRIHANIE KOMPLET
                 </div>
                 <div className="menu-item-desc">
-                  Signature Short Cut — umytie, strih, sušenie, styling
+                  Signature Cut — umytie, strih, sušenie, styling
                 </div>
               </div>
-              <div className="menu-item-price">17€</div>
+              <div className="menu-item-price">21€</div>
             </div>
             <div className="menu-item reveal">
               <div className="menu-item-info">
-                <div className="menu-item-time">45 min</div>
-                <div className="menu-item-name">
-                  STRIHANIE KOMPLET DLHÉ VLASY
-                </div>
-                <div className="menu-item-desc">
-                  Signature Long Cut — umytie, strih, sušenie, styling
-                </div>
-              </div>
-              <div className="menu-item-price">22€</div>
-            </div>
-            <div className="menu-item reveal reveal-delay-1">
-              <div className="menu-item-info">
-                <div className="menu-item-time">80–120 min</div>
+                <div className="menu-item-time">80-120 min</div>
                 <div className="menu-item-name">
                   FARBENIE BEZ ODFARBOVANIA
                 </div>
@@ -564,10 +584,10 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="menu-item-price">
-                <small>od </small>50€
+                <small>od </small>40€
               </div>
             </div>
-            <div className="menu-item reveal">
+            <div className="menu-item reveal reveal-delay-1">
               <div className="menu-item-info">
                 <div className="menu-item-time">60–90 min</div>
                 <div className="menu-item-name">MELÍR</div>
@@ -593,6 +613,18 @@ export default function HomePage() {
             </div>
             <div className="menu-item reveal">
               <div className="menu-item-info">
+                <div className="menu-item-time">100-200 min</div>
+                <div className="menu-item-name">ODFARBENIE VLASOV</div>
+                <div className="menu-item-desc">
+                  Hair Bleaching — umytie, strih, sušenie, styling
+                </div>
+              </div>
+              <div className="menu-item-price">
+                <small>od </small>60€-120€
+              </div>
+            </div>
+            <div className="menu-item reveal reveal-delay-1">
+              <div className="menu-item-info">
                 <div className="menu-item-time">60–300 min</div>
                 <div className="menu-item-name">
                   TRVALÁ ONDULÁCIA VLASOV
@@ -605,7 +637,7 @@ export default function HomePage() {
                 <small>od </small>40€
               </div>
             </div>
-            <div className="menu-item reveal reveal-delay-1">
+            <div className="menu-item reveal">
               <div className="menu-item-info">
                 <div className="menu-item-time">240–400 min</div>
                 <div className="menu-item-name">VYROVNÁVANIE VLASOV</div>
@@ -617,7 +649,7 @@ export default function HomePage() {
                 <small>od </small>65€
               </div>
             </div>
-            <div className="menu-item reveal">
+            <div className="menu-item reveal reveal-delay-1">
               <div className="menu-item-info">
                 <div className="menu-item-time">60–90 min</div>
                 <div className="menu-item-name">KERATÍNOVA REGENERÁCIA</div>
@@ -629,14 +661,14 @@ export default function HomePage() {
                 <small>od </small>35€
               </div>
             </div>
-            <div className="menu-item reveal reveal-delay-1">
+            <div className="menu-item reveal">
               <div className="menu-item-info">
                 <div className="menu-item-time">60 min</div>
                 <div className="menu-item-name">KOLAGÉNOVA KÚRA</div>
                 <div className="menu-item-desc">Collagen Treatment</div>
               </div>
               <div className="menu-item-price">
-                <small>od </small>15€
+                <small>od </small>18€
               </div>
             </div>
           </div>
@@ -710,6 +742,36 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="menu-item-price">60€</div>
+            </div>
+          </div>
+
+          <div
+            className={`menu-grid ${activeTab === "eyebrow" ? "active" : ""}`}
+            id="tab-eyebrow"
+          >
+            <div className="menu-item reveal">
+              <div className="menu-item-info">
+                <div className="menu-item-time">EYEBROW</div>
+                <div className="menu-item-name">ÚPRAVA OBOČIA (PINZETOU)</div>
+                <div className="menu-item-desc">Eyebrow shaping (tweezers)</div>
+              </div>
+              <div className="menu-item-price">7€</div>
+            </div>
+            <div className="menu-item reveal reveal-delay-1">
+              <div className="menu-item-info">
+                <div className="menu-item-time">EYEBROW</div>
+                <div className="menu-item-name">ZASTRIHÁVANIE OBOČIA</div>
+                <div className="menu-item-desc">Eyebrow trimming</div>
+              </div>
+              <div className="menu-item-price">5€</div>
+            </div>
+            <div className="menu-item reveal">
+              <div className="menu-item-info">
+                <div className="menu-item-time">EYEBROW</div>
+                <div className="menu-item-name">FARBENIE OBOČIA</div>
+                <div className="menu-item-desc">Eyebrow coloring</div>
+              </div>
+              <div className="menu-item-price">8€</div>
             </div>
           </div>
         </section>
