@@ -1,8 +1,16 @@
+@import "@fontsource/cinzel/400.css";
+@import "@fontsource/cinzel/500.css";
+@import "@fontsource/cinzel/600.css";
+@import "@fontsource/cinzel/700.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
+  /* Self-hosted Cinzel (no next/font → Google fetch at build/dev time) */
+  --font-cinzel: "Cinzel", ui-serif, Georgia, "Times New Roman", serif;
+
   --background: 0 0% 4%;
   --foreground: 210 40% 98%;
 
@@ -1389,6 +1397,18 @@ footer {
   color: var(--black);
 }
 
+button.hero-cta,
+button.footer-book-btn {
+  cursor: pointer;
+  font: inherit;
+  appearance: none;
+}
+
+button.hero-cta {
+  border: none;
+  background-color: transparent;
+}
+
 .footer-phone {
   margin-top: 16px;
 }
@@ -1497,6 +1517,15 @@ footer {
 
 .reveal-delay-3 {
   transition-delay: 0.3s;
+}
+
+/* Scrollable regions without visible scrollbar (booking modal, chips) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 @media (max-width: 900px) {

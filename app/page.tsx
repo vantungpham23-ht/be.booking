@@ -3,8 +3,9 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { BookingModal } from "@/components/booking-modal";
+import { PriceMenu } from "@/components/price-menu";
 
-type MenuTab = "mens" | "womens" | "spa" | "massage" | "eyebrow";
 type Lang = "en" | "sk";
 
 type TeamMember = {
@@ -68,8 +69,8 @@ const team: TeamMember[] = [
 ];
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState<MenuTab>("mens");
   const [lang, setLang] = useState<Lang>("en");
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
 
   useEffect(() => {
     const cursor = document.getElementById("cursor");
@@ -137,7 +138,7 @@ export default function HomePage() {
   }, []);
 
   const goToBooking = () => {
-    window.location.href = "https://booking.behairbarber.shop/booking/";
+    setIsBookingOpen(true);
   };
 
   const texts = {
@@ -304,13 +305,10 @@ export default function HomePage() {
               <div className="hero-divider-line right" />
             </div>
             <p className="hero-sub">{texts[lang].hero.sub}</p>
-            <a
-              href="https://booking.behairbarber.shop/booking/"
-              className="hero-cta"
-            >
+            <button type="button" className="hero-cta" onClick={goToBooking}>
               <span>{texts[lang].hero.cta}</span>
               <span className="hero-cta-arrow">→</span>
-            </a>
+            </button>
           </div>
           <div className="hero-scroll">
             <span>{texts[lang].hero.scroll}</span>
@@ -328,7 +326,7 @@ export default function HomePage() {
               <h2>
                 {texts[lang].story.headingLine1}
                 <br />
-                Trên <em>{texts[lang].story.headingLine2}</em>
+                <em>{texts[lang].story.headingLine2}</em>
               </h2>
               <p>
                 {texts[lang].story.p1}
@@ -377,404 +375,12 @@ export default function HomePage() {
 
         <div className="gold-divider" />
 
-        <section className="menu-section" id="menu">
-          <div className="menu-bg-text">PRICE LIST</div>
-          <div className="menu-header reveal">
-            <div className="section-label" style={{ justifyContent: "center" }}>
-              {texts[lang].menu.label}
-            </div>
-            <h2>
-              {texts[lang].menu.title.split(" ")[0]}{" "}
-              <span>{texts[lang].menu.title.split(" ").slice(1).join(" ")}</span>
-            </h2>
-            <p>{texts[lang].menu.sub}</p>
-          </div>
-
-          <div className="special-combos reveal">
-            <div className="special-combo-card">
-              <div className="special-combo-title">
-                BE SPECIAL COMBO PRE MUŽOV <span>(60 MIN)</span>
-              </div>
-              <div className="special-combo-desc">
-                Strih, umytie vlasov, masaz hlavy a sije, maska na tvar,
-                susenie a zaverecny styling
-              </div>
-              <div className="special-combo-price">35€</div>
-            </div>
-            <div className="special-combo-card">
-              <div className="special-combo-title">
-                BE SPECIAL COMBO PRE ŽENY <span>(90-120 MIN)</span>
-              </div>
-              <div className="special-combo-desc">
-                Umytie vlasov, masaz hlavy a sije, kolagenova kura, maska na
-                tvar, susenie vlasov prof. fenom Dyson, zaverecny styling
-              </div>
-              <div className="special-combo-price">65€</div>
-            </div>
-          </div>
-
-          <div className="menu-tabs reveal reveal-delay-1">
-            <button
-              type="button"
-              className={`menu-tab ${activeTab === "mens" ? "active" : ""}`}
-              onClick={() => setActiveTab("mens")}
-            >
-              ✂ Men&apos;s Grooming
-            </button>
-            <button
-              type="button"
-              className={`menu-tab ${activeTab === "womens" ? "active" : ""}`}
-              onClick={() => setActiveTab("womens")}
-            >
-              ♦ Women&apos;s Salon
-            </button>
-            <button
-              type="button"
-              className={`menu-tab ${activeTab === "spa" ? "active" : ""}`}
-              onClick={() => setActiveTab("spa")}
-            >
-              ◈ Head Spa
-            </button>
-            <button
-              type="button"
-              className={`menu-tab ${activeTab === "massage" ? "active" : ""}`}
-              onClick={() => setActiveTab("massage")}
-            >
-              ❧ Body Massage
-            </button>
-            <button
-              type="button"
-              className={`menu-tab ${activeTab === "eyebrow" ? "active" : ""}`}
-              onClick={() => setActiveTab("eyebrow")}
-            >
-              ◉ Eyebrow
-            </button>
-          </div>
-
-          <div
-            className={`menu-grid ${activeTab === "mens" ? "active" : ""}`}
-            id="tab-mens"
-          >
-            <div className="menu-item reveal">
-              <div className="menu-item-info">
-                <div className="menu-item-time">30 min</div>
-                <div className="menu-item-name">KLASICKÝ STRIH</div>
-                <div className="menu-item-desc">
-                  Classic Haircut — strih strojčekom, nožnicami, umytie vlasov,
-                  styling
-                </div>
-              </div>
-              <div className="menu-item-price">15€</div>
-            </div>
-            <div className="menu-item reveal reveal-delay-1">
-              <div className="menu-item-info">
-                <div className="menu-item-time">40 min</div>
-                <div className="menu-item-name">STRIH DLHÝCH VLASOV</div>
-                <div className="menu-item-desc">
-                  Long Haircut over 20cm — strih nožnicami, umytie vlasov,
-                  styling
-                </div>
-              </div>
-              <div className="menu-item-price">18€</div>
-            </div>
-            <div className="menu-item reveal">
-              <div className="menu-item-info">
-                <div className="menu-item-time">30 min</div>
-                <div className="menu-item-name">DETSKÝ STRIH</div>
-                <div className="menu-item-desc">
-                  Kids Haircut — deti do 13 rokov
-                </div>
-              </div>
-              <div className="menu-item-price">10€</div>
-            </div>
-            <div className="menu-item reveal reveal-delay-1">
-              <div className="menu-item-info">
-                <div className="menu-item-time">30 min</div>
-                <div className="menu-item-name">ÚPRAVA BRADY BRITVOU</div>
-                <div className="menu-item-desc">Straight Razor Beard Trim</div>
-              </div>
-              <div className="menu-item-price">
-                <small>od </small>5-10€
-              </div>
-            </div>
-            <div className="menu-item reveal">
-              <div className="menu-item-info">
-                <div className="menu-item-time">45 min</div>
-                <div className="menu-item-name">
-                  KOMBINÁCIA STRIH + ÚPRAVA BRADY
-                </div>
-                <div className="menu-item-desc">
-                  Combo: Haircut + Beard Trim
-                </div>
-              </div>
-              <div className="menu-item-price">25€</div>
-            </div>
-            <div className="menu-item reveal reveal-delay-1">
-              <div className="menu-item-info">
-                <div className="menu-item-time">25 min</div>
-                <div className="menu-item-name">FARBENIE ŠEDÍN</div>
-                <div className="menu-item-desc">Grey Hair Coverage</div>
-              </div>
-              <div className="menu-item-price">20€</div>
-            </div>
-            <div className="menu-item reveal">
-              <div className="menu-item-info">
-                <div className="menu-item-time">60 min</div>
-                <div className="menu-item-name">ODFARBOVANIE VLASOV</div>
-                <div className="menu-item-desc">Hair Bleaching</div>
-              </div>
-              <div className="menu-item-price">40€</div>
-            </div>
-            <div className="menu-item reveal reveal-delay-1">
-              <div className="menu-item-info">
-                <div className="menu-item-time">40 min</div>
-                <div className="menu-item-name">
-                  KLASICKÉ FARBENIE VLASOV
-                </div>
-                <div className="menu-item-desc">Classic Hair Coloring</div>
-              </div>
-              <div className="menu-item-price">25€</div>
-            </div>
-            <div className="menu-item reveal">
-              <div className="menu-item-info">
-                <div className="menu-item-time">—</div>
-                <div className="menu-item-name">TRVALÁ ONDULÁCIA VLASOV</div>
-                <div className="menu-item-desc">Men&apos;s Perm</div>
-              </div>
-              <div className="menu-item-price">
-                <small>od </small>35€
-              </div>
-            </div>
-          </div>
-
-          <div
-            className={`menu-grid ${activeTab === "womens" ? "active" : ""}`}
-            id="tab-womens"
-          >
-            <div className="menu-item reveal">
-              <div className="menu-item-info">
-                <div className="menu-item-time">20 min</div>
-                <div className="menu-item-name">FÚKANÁ VLASOV</div>
-                <div className="menu-item-desc">
-                  Blow Dry — umytie, sušenie, styling
-                </div>
-              </div>
-              <div className="menu-item-price">15€</div>
-            </div>
-            <div className="menu-item reveal reveal-delay-1">
-              <div className="menu-item-info">
-                <div className="menu-item-time">45 min</div>
-                <div className="menu-item-name">
-                  STRIHANIE KOMPLET
-                </div>
-                <div className="menu-item-desc">
-                  Signature Cut — umytie, strih, sušenie, styling
-                </div>
-              </div>
-              <div className="menu-item-price">21€</div>
-            </div>
-            <div className="menu-item reveal">
-              <div className="menu-item-info">
-                <div className="menu-item-time">80-120 min</div>
-                <div className="menu-item-name">
-                  FARBENIE BEZ ODFARBOVANIA
-                </div>
-                <div className="menu-item-desc">
-                  Essential Color — umytie, sušenie, styling
-                </div>
-              </div>
-              <div className="menu-item-price">
-                <small>od </small>40€
-              </div>
-            </div>
-            <div className="menu-item reveal reveal-delay-1">
-              <div className="menu-item-info">
-                <div className="menu-item-time">60–90 min</div>
-                <div className="menu-item-name">MELÍR</div>
-                <div className="menu-item-desc">
-                  Highlights — umytie, sušenie, styling
-                </div>
-              </div>
-              <div className="menu-item-price">
-                <small>od </small>55€
-              </div>
-            </div>
-            <div className="menu-item reveal reveal-delay-1">
-              <div className="menu-item-info">
-                <div className="menu-item-time">120–400 min</div>
-                <div className="menu-item-name">BALAYAGE</div>
-                <div className="menu-item-desc">
-                  Balayage — umytie, sušenie, styling
-                </div>
-              </div>
-              <div className="menu-item-price">
-                <small>od </small>80€
-              </div>
-            </div>
-            <div className="menu-item reveal">
-              <div className="menu-item-info">
-                <div className="menu-item-time">100-200 min</div>
-                <div className="menu-item-name">ODFARBENIE VLASOV</div>
-                <div className="menu-item-desc">
-                  Hair Bleaching — umytie, strih, sušenie, styling
-                </div>
-              </div>
-              <div className="menu-item-price">
-                <small>od </small>60€-120€
-              </div>
-            </div>
-            <div className="menu-item reveal reveal-delay-1">
-              <div className="menu-item-info">
-                <div className="menu-item-time">60–300 min</div>
-                <div className="menu-item-name">
-                  TRVALÁ ONDULÁCIA VLASOV
-                </div>
-                <div className="menu-item-desc">
-                  Perm — umytie, sušenie, styling
-                </div>
-              </div>
-              <div className="menu-item-price">
-                <small>od </small>40€
-              </div>
-            </div>
-            <div className="menu-item reveal">
-              <div className="menu-item-info">
-                <div className="menu-item-time">240–400 min</div>
-                <div className="menu-item-name">VYROVNÁVANIE VLASOV</div>
-                <div className="menu-item-desc">
-                  Hair Straightening Treatment — vyrovnávacia kúra
-                </div>
-              </div>
-              <div className="menu-item-price">
-                <small>od </small>65€
-              </div>
-            </div>
-            <div className="menu-item reveal reveal-delay-1">
-              <div className="menu-item-info">
-                <div className="menu-item-time">60–90 min</div>
-                <div className="menu-item-name">KERATÍNOVA REGENERÁCIA</div>
-                <div className="menu-item-desc">
-                  Keratin Regeneration — umytie, sušenie, keratínová kúra
-                </div>
-              </div>
-              <div className="menu-item-price">
-                <small>od </small>35€
-              </div>
-            </div>
-            <div className="menu-item reveal">
-              <div className="menu-item-info">
-                <div className="menu-item-time">60 min</div>
-                <div className="menu-item-name">KOLAGÉNOVA KÚRA</div>
-                <div className="menu-item-desc">Collagen Treatment</div>
-              </div>
-              <div className="menu-item-price">
-                <small>od </small>18€
-              </div>
-            </div>
-          </div>
-
-          <div
-            className={`menu-grid ${activeTab === "spa" ? "active" : ""}`}
-            id="tab-spa"
-          >
-            <div className="menu-item reveal">
-              <div className="menu-item-info">
-                <div className="menu-item-time">60 min</div>
-                <div className="menu-item-name">CLASSIC HEAD SPA</div>
-                <div className="menu-item-desc">
-                  Umytie vlasov, relaxačná masáž hlavy, tváre, šije a ramien,
-                  rúk
-                </div>
-              </div>
-              <div className="menu-item-price">40€</div>
-            </div>
-            <div className="menu-item reveal reveal-delay-1">
-              <div className="menu-item-info">
-                <div className="menu-item-time">75 min</div>
-                <div className="menu-item-name">STANDARD HEAD SPA</div>
-                <div className="menu-item-desc">
-                  Umytie vlasov, relaxačná masáž hlavy, tváre, šije a ramien,
-                  dekoltu, chrbta, rúk, maska na tvár, teplé obklady na oči
-                </div>
-              </div>
-              <div className="menu-item-price">55€</div>
-            </div>
-            <div className="menu-item reveal">
-              <div className="menu-item-info">
-                <div className="menu-item-time">90 min</div>
-                <div className="menu-item-name">LUXURY HEAD SPA</div>
-                <div className="menu-item-desc">
-                  Odstránenie make-upu, umývanie tváre, umytie vlasov šampónom,
-                  relaxačná masáž hlavy, tváre, šije, ramien, dekoltu, chrbta,
-                  horných a dolných končatín, teplé obklady na oči, maska na
-                  tvár
-                </div>
-              </div>
-              <div className="menu-item-price">65€</div>
-            </div>
-          </div>
-
-          <div
-            className={`menu-grid ${activeTab === "massage" ? "active" : ""}`}
-            id="tab-massage"
-          >
-            <div className="menu-item reveal">
-              <div className="menu-item-info">
-                <div className="menu-item-time">60 min</div>
-                <div className="menu-item-name">
-                  RELAXAČNÁ MASÁŽ CELÉHO TELA
-                </div>
-                <div className="menu-item-desc">
-                  Relaxing Full Body Massage — masáž hlavy, chrbta, rúk, nôh
-                </div>
-              </div>
-              <div className="menu-item-price">40€</div>
-            </div>
-            <div className="menu-item reveal reveal-delay-1">
-              <div className="menu-item-info">
-                <div className="menu-item-time">90 min</div>
-                <div className="menu-item-name">
-                  TERAPEUTICKÁ MASÁŽ CELÉHO TELA
-                </div>
-                <div className="menu-item-desc">
-                  Therapeutic Full Body Massage — pôsobí hlboko na svalové
-                  skupiny krku, šije, ramien, chrbta a dolných končatín
-                </div>
-              </div>
-              <div className="menu-item-price">60€</div>
-            </div>
-          </div>
-
-          <div
-            className={`menu-grid ${activeTab === "eyebrow" ? "active" : ""}`}
-            id="tab-eyebrow"
-          >
-            <div className="menu-item reveal">
-              <div className="menu-item-info">
-                <div className="menu-item-time">EYEBROW</div>
-                <div className="menu-item-name">ÚPRAVA OBOČIA (PINZETOU)</div>
-                <div className="menu-item-desc">Eyebrow shaping (tweezers)</div>
-              </div>
-              <div className="menu-item-price">7€</div>
-            </div>
-            <div className="menu-item reveal reveal-delay-1">
-              <div className="menu-item-info">
-                <div className="menu-item-time">EYEBROW</div>
-                <div className="menu-item-name">ZASTRIHÁVANIE OBOČIA</div>
-                <div className="menu-item-desc">Eyebrow trimming</div>
-              </div>
-              <div className="menu-item-price">5€</div>
-            </div>
-            <div className="menu-item reveal">
-              <div className="menu-item-info">
-                <div className="menu-item-time">EYEBROW</div>
-                <div className="menu-item-name">FARBENIE OBOČIA</div>
-                <div className="menu-item-desc">Eyebrow coloring</div>
-              </div>
-              <div className="menu-item-price">8€</div>
-            </div>
-          </div>
-        </section>
+        <PriceMenu
+          lang={lang}
+          label={texts[lang].menu.label}
+          title={texts[lang].menu.title}
+          sub={texts[lang].menu.sub}
+        />
 
         <div className="gold-divider" />
 
@@ -832,12 +438,13 @@ export default function HomePage() {
               <h3>Be.</h3>
               <p className="tagline">{texts[lang].footer.tagline}</p>
               <p>{texts[lang].footer.description}</p>
-              <a
-                href="https://booking.behairbarber.shop/booking/"
+              <button
+                type="button"
                 className="footer-book-btn"
+                onClick={goToBooking}
               >
                 {texts[lang].footer.bookNow}
-              </a>
+              </button>
               <div className="footer-social">
                 <a
                   href="https://instagram.com/be.hairbarber"
@@ -929,6 +536,12 @@ export default function HomePage() {
             </p>
           </div>
         </footer>
+
+        <BookingModal
+          isOpen={isBookingOpen}
+          onClose={() => setIsBookingOpen(false)}
+          lang={lang}
+        />
       </main>
     </>
   );
