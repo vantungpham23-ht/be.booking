@@ -23,3 +23,7 @@ npx wrangler pages dev .vercel/output/static --compatibility-date=2024-12-01
 ## Ghi chú
 
 - `@cloudflare/next-on-pages` trên npm có banner khuyến nghị [OpenNext Cloudflare](https://opennext.js.org/cloudflare); khi nâng Next lên 15+ có thể cân nhắc chuyển adapter.
+
+## Lỗi `npm ci` / `EUSAGE` / “Missing: @esbuild/… from lock file”
+
+Cloudflare chạy `npm clean-install` (`npm ci`). **Luôn commit và push `package-lock.json`** cùng `package.json`. Sau khi đổi dependency trên máy, chạy `npm install` rồi push lockfile mới — nếu lock lệch, CI sẽ fail với danh sách optional `@esbuild/*` thiếu.
