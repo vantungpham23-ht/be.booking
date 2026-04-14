@@ -1,10 +1,23 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 "use client";
 
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { BookingModal } from "@/components/booking-modal";
-import { PriceMenu } from "@/components/price-menu";
+
+const BookingModal = dynamic(
+  () => import("@/components/booking-modal").then((m) => ({ default: m.BookingModal })),
+  { ssr: false }
+);
+
+const PriceMenu = dynamic(
+  () => import("@/components/price-menu").then((m) => ({ default: m.PriceMenu })),
+  {
+    loading: () => (
+      <div className="min-h-[min(60vh,520px)] border-y border-[#1a1a1a] bg-[#0a0a0a]/80" aria-hidden />
+    ),
+  }
+);
 
 type Lang = "en" | "sk";
 
@@ -73,6 +86,7 @@ export default function HomePage() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
 
   useEffect(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const cursor = document.getElementById("cursor");
     const ring = document.getElementById("cursorRing");
 
@@ -82,26 +96,31 @@ export default function HomePage() {
     let my = 0;
     let rx = 0;
     let ry = 0;
-    let frameId: number;
+    let frameId = 0;
 
     const handleMouseMove = (e: MouseEvent) => {
       mx = e.clientX;
       my = e.clientY;
-      cursor.style.left = `${mx}px`;
-      cursor.style.top = `${my}px`;
     };
 
-    document.addEventListener("mousemove", handleMouseMove);
+    if (reducedMotion) {
+      cursor.style.display = "none";
+      ring.style.display = "none";
+    } else {
+      document.addEventListener("mousemove", handleMouseMove, { passive: true });
 
-    const animateRing = () => {
-      rx += (mx - rx) * 0.12;
-      ry += (my - ry) * 0.12;
-      ring.style.left = `${rx}px`;
-      ring.style.top = `${ry}px`;
-      frameId = window.requestAnimationFrame(animateRing);
-    };
+      const animateRing = () => {
+        cursor.style.left = `${mx}px`;
+        cursor.style.top = `${my}px`;
+        rx += (mx - rx) * 0.12;
+        ry += (my - ry) * 0.12;
+        ring.style.left = `${rx}px`;
+        ring.style.top = `${ry}px`;
+        frameId = window.requestAnimationFrame(animateRing);
+      };
 
-    animateRing();
+      animateRing();
+    }
 
     const reveals = document.querySelectorAll<HTMLElement>(".reveal");
     const observer = new IntersectionObserver(
@@ -113,7 +132,7 @@ export default function HomePage() {
           }
         });
       },
-      { threshold: 0.12, rootMargin: "0px 0px -50px 0px" }
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
     );
 
     reveals.forEach((el) => observer.observe(el));
@@ -127,7 +146,7 @@ export default function HomePage() {
           : "linear-gradient(to bottom, rgba(0,0,0,0.92), transparent)";
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
@@ -365,6 +384,7 @@ export default function HomePage() {
                   alt="Be. Hair &amp; Barber salon"
                   fill
                   priority
+                  sizes="(max-width: 1024px) 100vw, 45vw"
                   className="object-cover"
                 />
 
@@ -409,6 +429,7 @@ export default function HomePage() {
                     src={member.avatarSrc}
                     alt={member.avatarAlt}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover"
                   />
                   <div className="team-card-overlay">

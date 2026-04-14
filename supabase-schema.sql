@@ -1,6 +1,7 @@
 -- ===================================
 -- BE. BOOKING — FULL SCHEMA (project mới hoặc reset)
 -- Chạy trong Supabase SQL Editor. Xóa toàn bộ bảng cũ (CASCADE).
+-- Bước 2 (RLS production + RPC đồng bộ): chạy supabase-policies.sql (đổi UUID admin trong file đó).
 -- ===================================
 
 DROP TRIGGER IF EXISTS update_bookings_updated_at ON bookings;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { X, Clock, User, Check } from "lucide-react";
 import { supabase, type Service, type Stylist, type TimeSlot } from "@/lib/supabase";
 import { normalizeServices } from "@/lib/normalize-service";
@@ -14,17 +14,19 @@ import {
   addCalendarDaysToYmd,
   computeEndTimeFromStartAndDuration,
   formatBookingDateLong,
+  formatBookingTimeHm,
   formatBookingWeekdayShort,
   getTodayYmdInBookingTz,
 } from "@/lib/booking-time";
+import { randomBookingId } from "@/lib/random-booking-id";
+import { normalizeSkMobilePhone } from "@/lib/booking-phone";
 
-type BookingStep = "service" | "stylist" | "datetime" | "info";
+type BookingStep = "service" | "stylist" | "datetime" | "phone" | "info";
 
 type BookingConfirmation = {
   id: string;
   customerName: string;
   customerPhone: string;
-  customerEmail: string | null;
   serviceName: string;
   stylistName: string;
   dateYmd: string;
@@ -35,7 +37,7 @@ type BookingConfirmation = {
   notes: string | null;
 };
 
-const STEPS: BookingStep[] = ["service", "stylist", "datetime", "info"];
+const STEPS: BookingStep[] = ["service", "stylist", "datetime", "phone", "info"];
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -56,89 +58,125 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-  const [customerEmail, setCustomerEmail] = useState("");
   const [notes, setNotes] = useState("");
+  const [phoneError, setPhoneError] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [confirmation, setConfirmation] = useState<BookingConfirmation | null>(null);
   /** Anon has INSERT on bookings but no SELECT — cannot use .select() after insert (RLS). */
   const [submitError, setSubmitError] = useState("");
+  const submitInFlight = useRef(false);
+
+  const fetchServices = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from("services")
+        .select("*")
+        .eq("is_active", true)
+        .order("category")
+        .order("sort_order")
+        .order("name");
+      if (error) {
+        console.error("[BookingModal]", error.message);
+        setServices([]);
+        return;
+      }
+      setServices(normalizeServices(data ?? []));
+    } catch (e) {
+      console.error("[BookingModal] fetchServices", e);
+      setServices([]);
+    }
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
-    const prev = document.body.style.overflow;
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = prev;
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
     };
   }, [isOpen]);
 
+  /** Mỗi lần mở modal: form sạch (tránh màn success / bước cũ còn sót). */
   useEffect(() => {
-    if (isOpen) {
-      fetchServices();
-      setServiceCategory("mens");
-    }
-  }, [isOpen]);
+    if (!isOpen) return;
+    setStep("service");
+    setServiceCategory("mens");
+    setSelectedService(null);
+    setSelectedStylist(null);
+    setSelectedDate("");
+    setSelectedTime("");
+    setCustomerName("");
+    setCustomerPhone("");
+    setNotes("");
+    setPhoneError("");
+    setBookingSuccess(false);
+    setConfirmation(null);
+    setSubmitError("");
+    setStylists([]);
+    setAvailableSlots([]);
+    setLoading(false);
+    submitInFlight.current = false;
+    void fetchServices();
+  }, [isOpen, fetchServices]);
 
   const servicesInCategory = useMemo(
     () => services.filter((s) => s.category === serviceCategory),
     [services, serviceCategory]
   );
 
-  const fetchServices = async () => {
-    const { data, error } = await supabase
-      .from("services")
-      .select("*")
-      .eq("is_active", true)
-      .order("category")
-      .order("sort_order")
-      .order("name");
-    if (error) {
-      console.error("[BookingModal]", error.message);
-      setServices([]);
-      return;
-    }
-    setServices(normalizeServices(data ?? []));
-  };
-
   const fetchStylistsForService = async (serviceId: string) => {
     setLoading(true);
-    const { data: links } = await supabase
-      .from("stylist_services")
-      .select("stylist_id")
-      .eq("service_id", serviceId);
+    try {
+      const { data: links } = await supabase
+        .from("stylist_services")
+        .select("stylist_id")
+        .eq("service_id", serviceId);
 
-    if (!links?.length) {
+      if (!links?.length) {
+        setStylists([]);
+        return;
+      }
+
+      const ids = [...new Set(links.map((l) => l.stylist_id))];
+      const { data: stylistRows } = await supabase
+        .from("stylists")
+        .select("*")
+        .in("id", ids)
+        .eq("is_active", true)
+        .order("name");
+
+      setStylists(stylistRows ?? []);
+    } catch (e) {
+      console.error("[BookingModal] fetchStylistsForService", e);
       setStylists([]);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const ids = [...new Set(links.map((l) => l.stylist_id))];
-    const { data: stylistRows } = await supabase
-      .from("stylists")
-      .select("*")
-      .in("id", ids)
-      .eq("is_active", true)
-      .order("name");
-
-    setStylists(stylistRows ?? []);
-    setLoading(false);
   };
 
   const fetchAvailableSlots = async (stylistId: string, date: string) => {
     if (!selectedService) return;
 
     setLoading(true);
-    const { data } = await supabase.rpc("get_available_slots", {
-      p_stylist_id: stylistId,
-      p_date: date,
-      p_duration_minutes: Number(selectedService.duration_minutes) || 0,
-    });
+    try {
+      const { data } = await supabase.rpc("get_available_slots", {
+        p_stylist_id: stylistId,
+        p_date: date,
+        p_duration_minutes: Number(selectedService.duration_minutes) || 0,
+      });
 
-    if (data) setAvailableSlots(data);
-    setLoading(false);
+      if (data) setAvailableSlots(data);
+    } catch (e) {
+      console.error("[BookingModal] fetchAvailableSlots", e);
+      setAvailableSlots([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleServiceSelect = (service: Service) => {
@@ -161,58 +199,110 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
 
   const handleTimeSelect = (time: string) => {
     setSelectedTime(time);
+    setStep("phone");
+  };
+
+  const handlePhoneContinue = () => {
+    setPhoneError("");
+    const normalized = normalizeSkMobilePhone(customerPhone);
+    if (!normalized) {
+      setPhoneError(
+        lang === "sk"
+          ? "Zadajte slovenské mobilné číslo (napr. 0912 345 678 alebo +421 912 345 678)."
+          : "Enter a Slovak mobile number (e.g. 0912 345 678 or +421 912 345 678)."
+      );
+      return;
+    }
+    setCustomerPhone(normalized);
     setStep("info");
   };
 
   const handleSubmit = async () => {
     if (!selectedService || !selectedStylist || !selectedDate || !selectedTime) return;
+    if (!customerName.trim() || !normalizeSkMobilePhone(customerPhone)) return;
+    if (submitInFlight.current) return;
+    submitInFlight.current = true;
 
     setLoading(true);
     setSubmitError("");
 
-    const dur = Number(selectedService.duration_minutes) || 0;
-    const endTime = computeEndTimeFromStartAndDuration(selectedTime, dur);
-    const bookingId = crypto.randomUUID();
-
     const normalizeTime = (t: string) =>
       t.length >= 8 ? t.substring(0, 8) : `${t.substring(0, 5)}:00`;
 
-    const { error } = await supabase.from("bookings").insert({
-      id: bookingId,
-      customer_name: customerName.trim(),
-      customer_phone: customerPhone.trim(),
-      customer_email: customerEmail.trim() || null,
-      service_id: selectedService.id,
-      stylist_id: selectedStylist.id,
-      booking_date: selectedDate,
-      start_time: normalizeTime(selectedTime),
-      end_time: normalizeTime(endTime),
-      status: "pending",
-      notes: notes.trim() || null,
-    });
+    try {
+      const dur = Number(selectedService.duration_minutes) || 0;
+      const endTimeRaw = computeEndTimeFromStartAndDuration(selectedTime, dur);
+      const bookingId = randomBookingId();
 
-    setLoading(false);
+      let res: Response;
+      try {
+        res = await fetch("/api/bookings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: bookingId,
+            customer_name: customerName.trim(),
+            customer_phone: customerPhone,
+            service_id: selectedService.id,
+            stylist_id: selectedStylist.id,
+            booking_date: selectedDate,
+            start_time: normalizeTime(selectedTime),
+            end_time: normalizeTime(endTimeRaw),
+            notes: notes.trim() || null,
+            lang,
+          }),
+        });
+      } catch {
+        setSubmitError(
+          lang === "sk"
+            ? "Sieťová chyba. Skúste znova alebo zavolajte do salónu."
+            : "Network error. Try again or call the salon."
+        );
+        submitInFlight.current = false;
+        return;
+      }
 
-    if (error) {
-      setSubmitError(error.message);
-      return;
+      const payload = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        id?: string;
+      };
+
+      if (!res.ok || !payload.id) {
+        setSubmitError(
+          payload.error ||
+            (lang === "sk"
+              ? "Objednávku sa nepodarilo uložiť."
+              : "Could not complete your booking.")
+        );
+        submitInFlight.current = false;
+        return;
+      }
+
+      setConfirmation({
+        id: payload.id,
+        customerName: customerName.trim(),
+        customerPhone: customerPhone,
+        serviceName: selectedService.name,
+        stylistName: selectedStylist.name,
+        dateYmd: selectedDate,
+        startTime: selectedTime,
+        endTime: endTimeRaw,
+        durationMinutes: dur,
+        price: selectedService.price,
+        notes: notes.trim() || null,
+      });
+      setBookingSuccess(true);
+    } catch (err) {
+      console.error("[BookingModal] submit", err);
+      setSubmitError(
+        lang === "sk"
+          ? "Neočakávaná chyba. Obnovte stránku alebo zavolajte do salónu."
+          : "Something went wrong. Refresh the page or call the salon."
+      );
+    } finally {
+      setLoading(false);
+      submitInFlight.current = false;
     }
-
-    setConfirmation({
-      id: bookingId,
-      customerName: customerName.trim(),
-      customerPhone: customerPhone.trim(),
-      customerEmail: customerEmail.trim() || null,
-      serviceName: selectedService.name,
-      stylistName: selectedStylist.name,
-      dateYmd: selectedDate,
-      startTime: selectedTime,
-      endTime,
-      durationMinutes: dur,
-      price: selectedService.price,
-      notes: notes.trim() || null,
-    });
-    setBookingSuccess(true);
   };
 
   const resetAndClose = () => {
@@ -224,8 +314,8 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
     setSelectedTime("");
     setCustomerName("");
     setCustomerPhone("");
-    setCustomerEmail("");
     setNotes("");
+    setPhoneError("");
     setBookingSuccess(false);
     setConfirmation(null);
     setSubmitError("");
@@ -249,12 +339,13 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
       selectService: "Choose category & service",
       selectStylist: "Your artist",
       selectDateTime: "Date & time",
+      selectPhone: "Your mobile (Slovakia)",
+      phoneHint: "Slovak mobile only: 09XX XXX XXX or +421 9XX XXX XXX.",
+      phoneContinue: "Continue",
       yourInfo: "Your details",
       back: "Back",
       bookNow: "Confirm booking",
       name: "Full name",
-      phone: "Phone",
-      email: "Email (optional)",
       notesLabel: "Notes",
       notesPlaceholder: "Any requests?",
       success: "You’re booked",
@@ -263,7 +354,6 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
       successRef: "Booking reference",
       successYourName: "Name",
       successPhone: "Phone",
-      successEmail: "Email",
       successService: "Service",
       successStylist: "Artist",
       successWhen: "Date & time",
@@ -285,12 +375,13 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
       selectService: "Kategória a služba",
       selectStylist: "Váš špecialista",
       selectDateTime: "Dátum a čas",
+      selectPhone: "Váš mobil (Slovensko)",
+      phoneHint: "Iba slovenské mobilné číslo: 09XX XXX XXX alebo +421 9XX XXX XXX.",
+      phoneContinue: "Pokračovať",
       yourInfo: "Údaje",
       back: "Späť",
       bookNow: "Potvrdiť",
       name: "Meno",
-      phone: "Telefón",
-      email: "Email (voliteľné)",
       notesLabel: "Poznámka",
       notesPlaceholder: "Požiadavky?",
       success: "Objednané",
@@ -299,7 +390,6 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
       successRef: "Číslo objednávky",
       successYourName: "Meno",
       successPhone: "Telefón",
-      successEmail: "Email",
       successService: "Služba",
       successStylist: "Špecialista",
       successWhen: "Dátum a čas",
@@ -395,6 +485,7 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                         {s === "service" && (lang === "sk" ? "Služba" : "Service")}
                         {s === "stylist" && (lang === "sk" ? "Človek" : "Artist")}
                         {s === "datetime" && (lang === "sk" ? "Čas" : "Time")}
+                        {s === "phone" && (lang === "sk" ? "Mobil" : "Phone")}
                         {s === "info" && (lang === "sk" ? "Údaje" : "Info")}
                       </span>
                     </div>
@@ -443,12 +534,6 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                     <span className="shrink-0 text-[#6b655c]">{t.successPhone}</span>
                     <span className="text-right text-[#f5f0e8]">{confirmation.customerPhone}</span>
                   </div>
-                  {confirmation.customerEmail ? (
-                    <div className="flex justify-between gap-3">
-                      <span className="shrink-0 text-[#6b655c]">{t.successEmail}</span>
-                      <span className="break-all text-right text-[#f5f0e8]">{confirmation.customerEmail}</span>
-                    </div>
-                  ) : null}
                   <div className="flex justify-between gap-3">
                     <span className="shrink-0 text-[#6b655c]">{t.successService}</span>
                     <span className="max-w-[60%] text-right font-medium text-[#ede583]">
@@ -465,7 +550,7 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                       {formatBookingDateLong(confirmation.dateYmd, lang)}
                       <br />
                       <span className="font-be text-base font-semibold text-[#ede583]">
-                        {confirmation.startTime.substring(0, 5)} – {confirmation.endTime.substring(0, 5)}
+                        {formatBookingTimeHm(confirmation.startTime)} – {formatBookingTimeHm(confirmation.endTime)}
                       </span>
                     </span>
                   </div>
@@ -664,8 +749,71 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                 </div>
               )}
 
+              {step === "phone" && (
+                <form
+                  className="space-y-5 pb-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handlePhoneContinue();
+                  }}
+                >
+                  <p className="text-xs uppercase tracking-[0.2em] text-[#8a8068]">{t.selectPhone}</p>
+                  <p className="text-[11px] leading-relaxed text-[#5c574f]">{t.phoneHint}</p>
+                  <label className="block">
+                    <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-[#6b6b6b]">
+                      {lang === "sk" ? "Mobilné číslo" : "Mobile number"} *
+                    </span>
+                    <input
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      value={customerPhone}
+                      onChange={(e) => {
+                        setCustomerPhone(e.target.value);
+                        setPhoneError("");
+                      }}
+                      placeholder={lang === "sk" ? "napr. 0912 345 678" : "e.g. 0912 345 678"}
+                      className="h-12 w-full rounded-lg border border-[#2a2a2a] bg-[#0a0a0a] px-4 text-[#f5f0e8] outline-none focus:border-[#ab832e]"
+                    />
+                  </label>
+                  {phoneError ? (
+                    <div
+                      role="alert"
+                      className="rounded-lg border border-red-500/35 bg-red-500/[0.08] px-3 py-2.5 text-sm text-red-200/95"
+                    >
+                      {phoneError}
+                    </div>
+                  ) : null}
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPhoneError("");
+                        setStep("datetime");
+                      }}
+                      className="h-12 flex-1 rounded-lg border border-[#333] text-xs font-semibold uppercase tracking-wider text-[#b0a898] transition-colors hover:border-[#ab832e]"
+                    >
+                      {t.back}
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={!customerPhone.trim()}
+                      className="h-12 flex-[1.35] rounded-lg be-gold-gradient text-xs font-semibold uppercase tracking-wider text-[#0a0a0a] transition-opacity disabled:opacity-40"
+                    >
+                      {t.phoneContinue}
+                    </button>
+                  </div>
+                </form>
+              )}
+
               {step === "info" && (
-                <div className="space-y-4 pb-2">
+                <form
+                  className="space-y-4 pb-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    void handleSubmit();
+                  }}
+                >
                   <p className="text-xs uppercase tracking-[0.2em] text-[#8a8068]">{t.yourInfo}</p>
 
                   <label className="block">
@@ -677,30 +825,6 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
                       className="h-12 w-full rounded-lg border border-[#2a2a2a] bg-[#0a0a0a] px-4 text-[#f5f0e8] outline-none transition-colors focus:border-[#ab832e]"
-                    />
-                  </label>
-
-                  <label className="block">
-                    <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-[#6b6b6b]">
-                      {t.phone} *
-                    </span>
-                    <input
-                      type="tel"
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
-                      className="h-12 w-full rounded-lg border border-[#2a2a2a] bg-[#0a0a0a] px-4 text-[#f5f0e8] outline-none focus:border-[#ab832e]"
-                    />
-                  </label>
-
-                  <label className="block">
-                    <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-[#6b6b6b]">
-                      {t.email}
-                    </span>
-                    <input
-                      type="email"
-                      value={customerEmail}
-                      onChange={(e) => setCustomerEmail(e.target.value)}
-                      className="h-12 w-full rounded-lg border border-[#2a2a2a] bg-[#0a0a0a] px-4 text-[#f5f0e8] outline-none focus:border-[#ab832e]"
                     />
                   </label>
 
@@ -734,6 +858,10 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                         {formatDateChip(selectedDate)} · {selectedTime}
                       </span>
                     </div>
+                    <div className="mt-2 flex justify-between gap-2 text-[#8a8068]">
+                      <span>{lang === "sk" ? "Telefón" : "Phone"}</span>
+                      <span className="text-right font-mono text-sm text-[#f5f0e8]">{customerPhone}</span>
+                    </div>
                     <div className="mt-3 flex justify-between border-t border-[#2a2a2a] pt-3 font-be text-lg font-semibold text-[#ede583]">
                       <span>{lang === "sk" ? "Spolu" : "Total"}</span>
                       <span>{selectedService?.price}€</span>
@@ -755,22 +883,21 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                       type="button"
                       onClick={() => {
                         setSubmitError("");
-                        setStep("datetime");
+                        setStep("phone");
                       }}
                       className="h-12 flex-1 rounded-lg border border-[#333] text-xs font-semibold uppercase tracking-wider text-[#b0a898] transition-colors hover:border-[#ab832e]"
                     >
                       {t.back}
                     </button>
                     <button
-                      type="button"
-                      onClick={handleSubmit}
-                      disabled={!customerName || !customerPhone || loading}
+                      type="submit"
+                      disabled={!customerName.trim() || loading}
                       className="h-12 flex-[1.35] rounded-lg be-gold-gradient text-xs font-semibold uppercase tracking-wider text-[#0a0a0a] transition-opacity disabled:opacity-40"
                     >
                       {loading ? "…" : t.bookNow}
                     </button>
                   </div>
-                </div>
+                </form>
               )}
             </>
           )}

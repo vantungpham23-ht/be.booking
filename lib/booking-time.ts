@@ -57,9 +57,26 @@ export function computeEndTimeFromStartAndDuration(
   startHHMM: string,
   durationMinutes: number
 ): string {
-  const [h, min] = startHHMM.split(":").map((n) => parseInt(n, 10));
-  const total = h * 60 + min + durationMinutes;
+  const parts = startHHMM.split(":");
+  const h = parseInt(parts[0] ?? "0", 10);
+  const min = parseInt(parts[1] ?? "0", 10);
+  const dur = Number(durationMinutes);
+  if (!Number.isFinite(h) || !Number.isFinite(min) || !Number.isFinite(dur)) {
+    return "00:00";
+  }
+  const total = h * 60 + min + dur;
+  if (!Number.isFinite(total) || total < 0) return "00:00";
   const eh = Math.floor(total / 60);
   const em = total % 60;
   return `${String(eh).padStart(2, "0")}:${String(em).padStart(2, "0")}`;
+}
+
+/** Chuẩn HH:MM cho UI (TIME từ DB / chuỗi ngắn) — tránh .substring lỗi khi format lạ. */
+export function formatBookingTimeHm(t: string): string {
+  const s = t.trim();
+  if (!s) return "—";
+  const m = s.match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return s.length >= 5 ? s.slice(0, 5) : s;
+  const hh = String(Number(m[1])).padStart(2, "0");
+  return `${hh}:${m[2]}`;
 }
