@@ -7,6 +7,10 @@ Dự án dùng [`@cloudflare/next-on-pages`](https://github.com/cloudflare/next-
 - `CF_PAGES` = `1` (bật `images.unoptimized` trong `next.config.mjs`).
 - Các biến như trong `.env.local.example` (`NEXT_PUBLIC_*`, `SUPABASE_SERVICE_ROLE_KEY`).
 
+## Lỗi deploy Function: `No such module "node:stream"`
+
+`wrangler.toml` đã có `compatibility_flags = ["nodejs_compat"]` để runtime Workers hỗ trợ polyfill Node (Supabase client trên Edge). Nếu Dashboard từng ghi đè compatibility: Settings → Functions → đồng bộ với repo hoặc bật **Node.js compatibility** tương đương.
+
 ## Build trên Cloudflare (khuyến nghị)
 
 - **Build command:** `npm run pages:build`

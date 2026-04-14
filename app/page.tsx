@@ -79,6 +79,20 @@ const team: TeamMember[] = [
     avatarSrc: "/hank.JPG",
     avatarAlt: "Jana M. – Head Spa Expert tại Be. Hair & Barber",
   },
+  {
+    name: "Anna",
+    role: "Head Spa & Masáž",
+    bio: {
+      en: "Scalp and hair treatment expert. Combines traditional massage with modern spa therapies for a deeply relaxing experience.",
+      sk: "Expert na ošetrenie vlasov a pokožky hlavy. Spája tradičné masáže s modernými spa procedúrami pre hlboký oddych.",
+    },
+    focus: {
+      en: "Head spa · Massage",
+      sk: "Head spa · Masáž",
+    },
+    avatarSrc: "/hue.jpg",
+    avatarAlt: "Jana M. – Head Spa Expert tại Be. Hair & Barber",
+  },
 ];
 
 export default function HomePage() {
