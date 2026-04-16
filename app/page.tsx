@@ -394,7 +394,7 @@ export default function HomePage() {
               <div className="corner-decor br" />
               <div className="story-img-inner">
                 <Image
-                  src="/be.svg"
+                  src="/be-salon.jpg"
                   alt="Be. Hair &amp; Barber salon"
                   fill
                   priority
