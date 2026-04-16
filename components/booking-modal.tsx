@@ -138,12 +138,57 @@ interface BookingModalProps {
   lang?: "en" | "sk";
 }
 
+function useDragScroll() {
+  const ref = useRef<HTMLDivElement>(null);
+  const state = useRef({ down: false, dragged: false, startX: 0, scrollL: 0 });
+
+  const handlers = useMemo(() => {
+    const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+      const el = ref.current;
+      if (!el) return;
+      state.current = { down: true, dragged: false, startX: e.clientX, scrollL: el.scrollLeft };
+      el.style.cursor = "grabbing";
+
+      const onMove = (ev: MouseEvent) => {
+        if (!state.current.down) return;
+        const dx = ev.clientX - state.current.startX;
+        if (Math.abs(dx) > 3) state.current.dragged = true;
+        el.scrollLeft = state.current.scrollL - dx;
+      };
+
+      const onUp = () => {
+        state.current.down = false;
+        el.style.cursor = "grab";
+        if (state.current.dragged) {
+          el.addEventListener("click", blockClick, true);
+        }
+        window.removeEventListener("mousemove", onMove);
+        window.removeEventListener("mouseup", onUp);
+      };
+
+      const blockClick = (ev: Event) => {
+        ev.stopPropagation();
+        ev.preventDefault();
+        el.removeEventListener("click", blockClick, true);
+      };
+
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("mouseup", onUp);
+    };
+
+    return { onMouseDown };
+  }, []);
+
+  return { ref, onMouseDown: handlers.onMouseDown };
+}
+
 export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps) {
   const [step, setStep] = useState<BookingStep>("service");
   const [serviceCategory, setServiceCategory] = useState<ServiceCategoryId>("mens");
   const [services, setServices] = useState<Service[]>([]);
   const [stylists, setStylists] = useState<Stylist[]>([]);
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
+  const categoryScroll = useDragScroll();
 
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedStylist, setSelectedStylist] = useState<Stylist | null>(null);
@@ -620,7 +665,11 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                   <p className="text-xs uppercase tracking-[0.2em] text-[#8a8068]">
                     {t.selectService}
                   </p>
-                  <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto pb-1 px-1">
+                  <div
+                    ref={categoryScroll.ref}
+                    onMouseDown={categoryScroll.onMouseDown}
+                    className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto pb-1 px-1 cursor-grab"
+                  >
                     {SERVICE_CATEGORY_IDS.map((id) => (
                       <button
                         key={id}
