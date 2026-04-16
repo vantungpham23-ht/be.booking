@@ -39,6 +39,99 @@ type BookingConfirmation = {
 
 const STEPS: BookingStep[] = ["service", "stylist", "datetime", "phone", "info"];
 
+const CHIP_BASE =
+  "min-h-[44px] rounded-lg border text-left transition-colors duration-200 touch-manipulation";
+const CHIP_IDLE =
+  "border-[#2a2a2a] bg-[#0f0f0f] text-[#f5f0e8] hover:border-[#ab832e]/50 active:border-[#ab832e]";
+const CHIP_ACTIVE = "border-[#ab832e] bg-[#ab832e]/15 text-[#ede583] ring-1 ring-[#ab832e]/40";
+
+const TEXTS = {
+  en: {
+    title: "Book appointment",
+    selectService: "Choose category & service",
+    selectStylist: "Your artist",
+    selectDateTime: "Date & time",
+    selectPhone: "Your mobile (Slovakia)",
+    phoneHint: "Slovak mobile only: 09XX XXX XXX or +421 9XX XXX XXX.",
+    phoneContinue: "Continue",
+    yourInfo: "Your details",
+    back: "Back",
+    bookNow: "Confirm booking",
+    name: "Full name",
+    notesLabel: "Notes",
+    notesPlaceholder: "Any requests?",
+    success: "You're booked",
+    successMsg: "We'll confirm with you shortly.",
+    successHint: "Screenshot this summary and show it at the salon.",
+    successRef: "Booking reference",
+    successYourName: "Name",
+    successPhone: "Phone",
+    successService: "Service",
+    successStylist: "Artist",
+    successWhen: "Date & time",
+    successDuration: "Duration",
+    successTotal: "Total",
+    successNotes: "Notes",
+    successTimezone: `Times: Slovakia (${BOOKING_TIMEZONE})`,
+    successClose: "Close",
+    timesNote: "Times are in Slovakia (Košice).",
+    noStylists: "No team member is assigned to this service yet.",
+    availableTimes: "Available times",
+    loadingSlots: "Loading…",
+    noSlots: "No slots this day",
+    noServices: "No services in this category.",
+    bookingSaveFailed: "Could not save your booking",
+    serviceLabel: "Service",
+    stylistLabel: "Artist",
+    whenLabel: "When",
+    phoneLabel: "Phone",
+    totalLabel: "Total",
+    mobileLabel: "Mobile number",
+  },
+  sk: {
+    title: "Objednať sa",
+    selectService: "Kategória a služba",
+    selectStylist: "Váš špecialista",
+    selectDateTime: "Dátum a čas",
+    selectPhone: "Váš mobil (Slovensko)",
+    phoneHint: "Iba slovenské mobilné číslo: 09XX XXX XXX alebo +421 9XX XXX XXX.",
+    phoneContinue: "Pokračovať",
+    yourInfo: "Údaje",
+    back: "Späť",
+    bookNow: "Potvrdiť",
+    name: "Meno",
+    notesLabel: "Poznámka",
+    notesPlaceholder: "Požiadavky?",
+    success: "Objednané",
+    successMsg: "Čoskoro vás budeme kontaktovať.",
+    successHint: "Urobte snímku obrazovky a ukážte ju v salóne.",
+    successRef: "Číslo objednávky",
+    successYourName: "Meno",
+    successPhone: "Telefón",
+    successService: "Služba",
+    successStylist: "Špecialista",
+    successWhen: "Dátum a čas",
+    successDuration: "Trvanie",
+    successTotal: "Spolu",
+    successNotes: "Poznámka",
+    successTimezone: `Čas: Slovensko (${BOOKING_TIMEZONE})`,
+    successClose: "Zavrieť",
+    timesNote: "Časy sú podľa času na Slovensku (Košice).",
+    noStylists: "Pre túto službu nie je priradený člen tímu.",
+    availableTimes: "Voľné časy",
+    loadingSlots: "Načítavam…",
+    noSlots: "Žiadne termíny",
+    noServices: "V tejto kategórii zatiaľ nič nemáme.",
+    bookingSaveFailed: "Objednávku sa nepodarilo uložiť",
+    serviceLabel: "Služba",
+    stylistLabel: "Špecialista",
+    whenLabel: "Termín",
+    phoneLabel: "Telefón",
+    totalLabel: "Spolu",
+    mobileLabel: "Mobilné číslo",
+  },
+} as const;
+
 interface BookingModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -64,7 +157,6 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
   const [loading, setLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [confirmation, setConfirmation] = useState<BookingConfirmation | null>(null);
-  /** Anon has INSERT on bookings but no SELECT — cannot use .select() after insert (RLS). */
   const [submitError, setSubmitError] = useState("");
   const submitInFlight = useRef(false);
 
@@ -101,7 +193,6 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
     };
   }, [isOpen]);
 
-  /** Mỗi lần mở modal: form sạch (tránh màn success / bước cũ còn sót). */
   useEffect(() => {
     if (!isOpen) return;
     setStep("service");
@@ -278,6 +369,25 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
         return;
       }
 
+      fetch("/api/notify-telegram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bookingId: payload.id,
+          customerName: customerName.trim(),
+          customerPhone,
+          serviceName: selectedService.name,
+          stylistName: selectedStylist.name,
+          bookingDate: selectedDate,
+          startTime: selectedTime,
+          endTime: endTimeRaw,
+          durationMinutes: dur,
+          price: selectedService.price,
+          notes: notes.trim() || null,
+          lang,
+        }),
+      }).catch(() => {});
+
       setConfirmation({
         id: payload.id,
         customerName: customerName.trim(),
@@ -324,98 +434,20 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
     onClose();
   };
 
-  const getAvailableDates = () => {
+  const availableDates = useMemo(() => {
     const today = getTodayYmdInBookingTz();
     return Array.from({ length: 14 }, (_, i) => addCalendarDaysToYmd(today, i));
-  };
+  }, []);
 
-  const formatDateChip = (dateStr: string) => formatBookingWeekdayShort(dateStr, lang);
+  const formatDateChip = useCallback(
+    (dateStr: string) => formatBookingWeekdayShort(dateStr, lang),
+    [lang]
+  );
 
   if (!isOpen) return null;
 
-  const texts = {
-    en: {
-      title: "Book appointment",
-      selectService: "Choose category & service",
-      selectStylist: "Your artist",
-      selectDateTime: "Date & time",
-      selectPhone: "Your mobile (Slovakia)",
-      phoneHint: "Slovak mobile only: 09XX XXX XXX or +421 9XX XXX XXX.",
-      phoneContinue: "Continue",
-      yourInfo: "Your details",
-      back: "Back",
-      bookNow: "Confirm booking",
-      name: "Full name",
-      notesLabel: "Notes",
-      notesPlaceholder: "Any requests?",
-      success: "You’re booked",
-      successMsg: "We’ll confirm with you shortly.",
-      successHint: "Screenshot this summary and show it at the salon.",
-      successRef: "Booking reference",
-      successYourName: "Name",
-      successPhone: "Phone",
-      successService: "Service",
-      successStylist: "Artist",
-      successWhen: "Date & time",
-      successDuration: "Duration",
-      successTotal: "Total",
-      successNotes: "Notes",
-      successTimezone: `Times: Slovakia (${BOOKING_TIMEZONE})`,
-      successClose: "Close",
-      timesNote: "Times are in Slovakia (Košice).",
-      noStylists: "No team member is assigned to this service yet.",
-      availableTimes: "Available times",
-      loadingSlots: "Loading…",
-      noSlots: "No slots this day",
-      noServices: "No services in this category.",
-      bookingSaveFailed: "Could not save your booking",
-    },
-    sk: {
-      title: "Objednať sa",
-      selectService: "Kategória a služba",
-      selectStylist: "Váš špecialista",
-      selectDateTime: "Dátum a čas",
-      selectPhone: "Váš mobil (Slovensko)",
-      phoneHint: "Iba slovenské mobilné číslo: 09XX XXX XXX alebo +421 9XX XXX XXX.",
-      phoneContinue: "Pokračovať",
-      yourInfo: "Údaje",
-      back: "Späť",
-      bookNow: "Potvrdiť",
-      name: "Meno",
-      notesLabel: "Poznámka",
-      notesPlaceholder: "Požiadavky?",
-      success: "Objednané",
-      successMsg: "Čoskoro vás budeme kontaktovať.",
-      successHint: "Urobte snímku obrazovky a ukážte ju v salóne.",
-      successRef: "Číslo objednávky",
-      successYourName: "Meno",
-      successPhone: "Telefón",
-      successService: "Služba",
-      successStylist: "Špecialista",
-      successWhen: "Dátum a čas",
-      successDuration: "Trvanie",
-      successTotal: "Spolu",
-      successNotes: "Poznámka",
-      successTimezone: `Čas: Slovensko (${BOOKING_TIMEZONE})`,
-      successClose: "Zavrieť",
-      timesNote: "Časy sú podľa času na Slovensku (Košice).",
-      noStylists: "Pre túto službu nie je priradený člen tímu.",
-      availableTimes: "Voľné časy",
-      loadingSlots: "Načítavam…",
-      noSlots: "Žiadne termíny",
-      noServices: "V tejto kategórii zatiaľ nič nemáme.",
-      bookingSaveFailed: "Objednávku sa nepodarilo uložiť",
-    },
-  };
-
-  const t = texts[lang];
+  const t = TEXTS[lang];
   const stepIndex = STEPS.indexOf(step);
-
-  const chipBase =
-    "min-h-[44px] rounded-lg border text-left transition-colors duration-200 touch-manipulation";
-  const chipIdle =
-    "border-[#2a2a2a] bg-[#0f0f0f] text-[#f5f0e8] hover:border-[#ab832e]/50 active:border-[#ab832e]";
-  const chipActive = "border-[#ab832e] bg-[#ab832e]/15 text-[#ede583] ring-1 ring-[#ab832e]/40";
 
   return (
     <div
@@ -435,7 +467,6 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
         className="relative z-10 flex h-[100dvh] w-full max-h-[100dvh] flex-col overflow-hidden border-[#222] bg-[#0d0d0d] shadow-2xl sm:h-auto sm:max-h-[min(88dvh,760px)] sm:max-w-lg sm:rounded-2xl sm:border"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header — cố định */}
         <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[#1f1f1f] px-4 py-4 sm:px-6">
           <div>
             <p className="font-be text-[10px] uppercase tracking-[0.35em] text-[#8a8068]">
@@ -504,7 +535,6 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
           </div>
         )}
 
-        {/* Body — cuộn ẩn scrollbar */}
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain no-scrollbar px-4 py-5 sm:px-6 sm:py-6">
           {bookingSuccess && confirmation ? (
             <div className="space-y-6 pb-2">
@@ -616,7 +646,7 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                           key={service.id}
                           type="button"
                           onClick={() => handleServiceSelect(service)}
-                          className={`${chipBase} ${chipIdle} flex w-full items-start justify-between gap-3 p-4 text-left`}
+                          className={`${CHIP_BASE} ${CHIP_IDLE} flex w-full items-start justify-between gap-3 p-4 text-left`}
                         >
                           <div className="min-w-0 flex-1">
                             <span className="font-be text-sm font-semibold text-[#f5f0e8]">
@@ -658,7 +688,7 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                           key={stylist.id}
                           type="button"
                           onClick={() => handleStylistSelect(stylist)}
-                          className={`${chipBase} ${chipIdle} flex w-full items-center gap-4 p-4`}
+                          className={`${CHIP_BASE} ${CHIP_IDLE} flex w-full items-center gap-4 p-4`}
                         >
                           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#2a2a2a] bg-[#141414]">
                             <User className="h-6 w-6 text-[#8a8068]" strokeWidth={1.25} />
@@ -695,13 +725,13 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                   <p className="text-[11px] leading-relaxed text-[#5c574f]">{t.timesNote}</p>
 
                   <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
-                    {getAvailableDates().map((date) => (
+                    {availableDates.map((date) => (
                       <button
                         key={date}
                         type="button"
                         onClick={() => handleDateSelect(date)}
-                        className={`${chipBase} px-2 py-3 text-center text-xs font-medium ${
-                          selectedDate === date ? chipActive : chipIdle
+                        className={`${CHIP_BASE} px-2 py-3 text-center text-xs font-medium ${
+                          selectedDate === date ? CHIP_ACTIVE : CHIP_IDLE
                         }`}
                       >
                         {formatDateChip(date)}
@@ -725,7 +755,7 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                               key={slot.slot_time}
                               type="button"
                               onClick={() => handleTimeSelect(slot.slot_time)}
-                              className={`${chipBase} py-3 text-center text-sm font-medium ${chipIdle}`}
+                              className={`${CHIP_BASE} py-3 text-center text-sm font-medium ${CHIP_IDLE}`}
                             >
                               {slot.slot_time.substring(0, 5)}
                             </button>
@@ -761,7 +791,7 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                   <p className="text-[11px] leading-relaxed text-[#5c574f]">{t.phoneHint}</p>
                   <label className="block">
                     <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-[#6b6b6b]">
-                      {lang === "sk" ? "Mobilné číslo" : "Mobile number"} *
+                      {t.mobileLabel} *
                     </span>
                     <input
                       type="tel"
@@ -843,27 +873,27 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
 
                   <div className="rounded-xl border border-[#2a2a2a] bg-[#111] p-4 text-sm">
                     <div className="flex justify-between gap-2 text-[#8a8068]">
-                      <span>{lang === "sk" ? "Služba" : "Service"}</span>
+                      <span>{t.serviceLabel}</span>
                       <span className="max-w-[55%] text-right text-[#f5f0e8]">
                         {selectedService?.name}
                       </span>
                     </div>
                     <div className="mt-2 flex justify-between gap-2 text-[#8a8068]">
-                      <span>{lang === "sk" ? "Špecialista" : "Artist"}</span>
+                      <span>{t.stylistLabel}</span>
                       <span className="text-[#f5f0e8]">{selectedStylist?.name}</span>
                     </div>
                     <div className="mt-2 flex justify-between gap-2 text-[#8a8068]">
-                      <span>{lang === "sk" ? "Termín" : "When"}</span>
+                      <span>{t.whenLabel}</span>
                       <span className="text-right text-[#f5f0e8]">
                         {formatDateChip(selectedDate)} · {selectedTime}
                       </span>
                     </div>
                     <div className="mt-2 flex justify-between gap-2 text-[#8a8068]">
-                      <span>{lang === "sk" ? "Telefón" : "Phone"}</span>
+                      <span>{t.phoneLabel}</span>
                       <span className="text-right font-mono text-sm text-[#f5f0e8]">{customerPhone}</span>
                     </div>
                     <div className="mt-3 flex justify-between border-t border-[#2a2a2a] pt-3 font-be text-lg font-semibold text-[#ede583]">
-                      <span>{lang === "sk" ? "Spolu" : "Total"}</span>
+                      <span>{t.totalLabel}</span>
                       <span>{selectedService?.price}€</span>
                     </div>
                   </div>

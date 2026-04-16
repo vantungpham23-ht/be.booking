@@ -48,7 +48,7 @@ const team: TeamMember[] = [
       en: "Men's grooming · Skin fades · Beard design",
       sk: "Pánsky grooming · Skin fades · Úprava brady",
     },
-    avatarSrc: "/quan.JPG",
+    avatarSrc: "/quan.svg",
     avatarAlt: "Marek V. – Master Barber tại Be. Hair & Barber",
   },
   {
@@ -62,7 +62,7 @@ const team: TeamMember[] = [
       en: "Men's grooming · Skin fades · Beard design",
       sk: "Pánsky grooming · Skin fades · Úprava brady",
     },
-    avatarSrc: "/son.JPG",
+    avatarSrc: "/son.svg",
     avatarAlt: "Lucia K. – Color Specialist tại Be. Hair & Barber",
   },
   {
@@ -76,7 +76,7 @@ const team: TeamMember[] = [
       en: "Head spa · Massage · Keratin",
       sk: "Head spa · Masáž · Keratín",
     },
-    avatarSrc: "/hank.JPG",
+    avatarSrc: "/hank.svg",
     avatarAlt: "Jana M. – Head Spa Expert tại Be. Hair & Barber",
   },
   {
@@ -394,7 +394,7 @@ export default function HomePage() {
               <div className="corner-decor br" />
               <div className="story-img-inner">
                 <Image
-                  src="/be-salon.jpg"
+                  src="/be.svg"
                   alt="Be. Hair &amp; Barber salon"
                   fill
                   priority
