@@ -41,8 +41,8 @@ const team: TeamMember[] = [
     name: "Quan K",
     role: "Master Barber",
     bio: {
-      en: "Men's grooming specialist with 3+ years of experience. Master of classic fades and modern beard design.",
-      sk: "Špecialista na pánske strihy s viac ako 3 rokmi skúseností. Majster klasických fade strihov a modernej úpravy brady.",
+      en: "Master of classic fades and modern beard design.",
+      sk: "Majster klasických fade strihov a modernej úpravy brady.",
     },
     focus: {
       en: "Men's grooming · Skin fades · Beard design",
@@ -55,8 +55,8 @@ const team: TeamMember[] = [
     name: "Sonny",
     role: "Master Barber",
     bio: {
-      en: "Men's grooming specialist with 3+ years of experience. Master of classic fades and modern beard design",
-      sk: "Špecialista na pánske strihy s viac ako 2 rokmi skúseností. Majster klasických fade strihov a modernej úpravy brady.",
+      en: "Master of classic fades and modern beard design",
+      sk: "Majster klasických fade strihov a modernej úpravy brady.",
     },
     focus: {
       en: "Men's grooming · Skin fades · Beard design",
@@ -96,7 +96,7 @@ const team: TeamMember[] = [
 ];
 
 export default function HomePage() {
-  const [lang, setLang] = useState<Lang>("en");
+  const [lang, setLang] = useState<Lang>("sk");
   const [isBookingOpen, setIsBookingOpen] = useState(false);
 
   useEffect(() => {

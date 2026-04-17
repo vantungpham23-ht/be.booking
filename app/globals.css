@@ -11,44 +11,44 @@
   /* Self-hosted Cinzel (no next/font → Google fetch at build/dev time) */
   --font-cinzel: "Cinzel", ui-serif, Georgia, "Times New Roman", serif;
 
-  --background: 0 0% 4%;
+  --background: 0 0% 8%;
   --foreground: 210 40% 98%;
 
-  --card: 0 0% 7%;
+  --card: 0 0% 11%;
   --card-foreground: 210 40% 98%;
 
-  --border: 220 14% 20%;
-  --input: 220 14% 18%;
+  --border: 220 14% 25%;
+  --input: 220 14% 22%;
   --ring: 46 63% 53%;
 
   --primary: 46 63% 53%;
   --primary-foreground: 0 0% 5%;
 
-  --secondary: 220 14% 16%;
+  --secondary: 220 14% 20%;
   --secondary-foreground: 210 40% 98%;
 
-  --muted: 220 14% 13%;
-  --muted-foreground: 215 20% 65%;
+  --muted: 220 14% 18%;
+  --muted-foreground: 215 20% 75%;
 
-  --accent: 40 46% 57%;
+  --accent: 40 50% 62%;
   --accent-foreground: 0 0% 5%;
 
-  /* Gold gradient extracted from logo */
-  --be-gold-start: #ab832e;
-  --be-gold-mid: #ede583;
-  --be-gold-end: #ab832e;
+  /* Gold gradient - slightly brighter */
+  --be-gold-start: #b88a3a;
+  --be-gold-mid: #f0e68c;
+  --be-gold-end: #b88a3a;
 
-  /* Palette for 3e layout */
+  /* Palette for layout */
   --gold: var(--be-gold-start);
   --gold-light: var(--be-gold-mid);
-  --gold-dark: #8c6b1f;
-  --black: #0a0a0a;
-  --black-soft: #111111;
-  --black-card: #161616;
-  --black-border: #222222;
+  --gold-dark: #9a7a2f;
+  --black: #121212;
+  --black-soft: #1a1a1a;
+  --black-card: #1e1e1e;
+  --black-border: #2a2a2a;
   --white: #f5f0e8;
-  --white-dim: #b0a898;
-  --accent-dark: #2a1f0a;
+  --white-dim: #c8c0b0;
+  --accent-dark: #3a2f1a;
 }
 
 * {
@@ -56,7 +56,7 @@
 }
 
 body {
-  @apply bg-[#0b0b0b] text-foreground antialiased;
+  @apply bg-[#121212] text-foreground antialiased;
 }
 
 .be-gold-gradient {
@@ -307,15 +307,15 @@ nav {
   background:
     radial-gradient(
       ellipse at 20% 50%,
-      rgba(201, 168, 76, 0.07) 0%,
+      rgba(184, 138, 58, 0.07) 0%,
       transparent 60%
     ),
     radial-gradient(
       ellipse at 80% 20%,
-      rgba(201, 168, 76, 0.05) 0%,
+      rgba(184, 138, 58, 0.05) 0%,
       transparent 50%
     ),
-    linear-gradient(135deg, #0a0a0a 0%, #111108 50%, #0a0a0a 100%);
+    linear-gradient(135deg, #121212 0%, #1a1a1a 50%, #121212 100%);
 }
 
 .hero-lines {
@@ -326,13 +326,13 @@ nav {
       0deg,
       transparent,
       transparent 79px,
-      rgba(201, 168, 76, 0.04) 80px
+      rgba(184, 138, 58, 0.04) 80px
     ),
     repeating-linear-gradient(
       90deg,
       transparent,
       transparent 79px,
-      rgba(201, 168, 76, 0.04) 80px
+      rgba(184, 138, 58, 0.04) 80px
     );
 }
 
@@ -511,7 +511,7 @@ nav {
 
 .story-number {
   font-size: 160px;
-  color: rgba(201, 168, 76, 0.06);
+  color: rgba(184, 138, 58, 0.07);
   line-height: 1;
   position: absolute;
   left: -20px;
@@ -608,7 +608,7 @@ nav {
 .story-img-frame {
   position: absolute;
   inset: 0;
-  border: 1px solid rgba(201, 168, 76, 0.2);
+  border: 1px solid rgba(184, 138, 58, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -644,7 +644,7 @@ nav {
 .story-badge {
   display: inline-flex;
   flex-direction: column;
-  border: 1px solid rgba(201, 168, 76, 0.4);
+  border: 1px solid rgba(184, 138, 58, 0.5);
   padding: 16px 24px;
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(10px);
@@ -706,7 +706,7 @@ nav {
 .menu-bg-text {
   position: absolute;
   font-size: 200px;
-  color: rgba(201, 168, 76, 0.025);
+  color: rgba(184, 138, 58, 0.03);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -758,10 +758,10 @@ nav {
 
 .special-combo-card {
   position: relative;
-  border: 1px solid rgba(201, 168, 76, 0.8);
+  border: 1px solid rgba(184, 138, 58, 0.8);
   background:
-    linear-gradient(140deg, rgba(201, 168, 76, 0.06), rgba(201, 168, 76, 0.01)),
-    rgba(10, 10, 10, 0.9);
+    linear-gradient(140deg, rgba(184, 138, 58, 0.06), rgba(184, 138, 58, 0.01)),
+    rgba(18, 18, 18, 0.9);
   padding: 20px 22px;
   overflow: hidden;
 }
@@ -770,7 +770,7 @@ nav {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top right, rgba(237, 229, 131, 0.15), transparent 55%);
+  background: radial-gradient(circle at top right, rgba(240, 230, 140, 0.15), transparent 55%);
   pointer-events: none;
 }
 
@@ -875,8 +875,8 @@ nav {
 }
 
 .menu-item:hover {
-  border-color: rgba(201, 168, 76, 0.3);
-  background: rgba(22, 22, 22, 0.9);
+  border-color: rgba(184, 138, 58, 0.3);
+  background: rgba(26, 26, 26, 0.9);
 }
 
 .menu-item:hover::before {
@@ -1004,10 +1004,10 @@ nav {
   border-radius: 50%;
   background: linear-gradient(
     135deg,
-    rgba(201, 168, 76, 0.3),
-    rgba(201, 168, 76, 0.05)
+    rgba(184, 138, 58, 0.3),
+    rgba(184, 138, 58, 0.05)
   );
-  border: 1px solid rgba(201, 168, 76, 0.3);
+  border: 1px solid rgba(184, 138, 58, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1069,7 +1069,7 @@ nav {
 
 .team-skill {
   padding: 4px 12px;
-  border: 1px solid rgba(201, 168, 76, 0.3);
+  border: 1px solid rgba(184, 138, 58, 0.3);
   font-size: 9px;
   letter-spacing: 0.2em;
   color: var(--gold);
@@ -1172,7 +1172,7 @@ footer {
   background:
     radial-gradient(
       circle at top left,
-      rgba(201, 168, 76, 0.06),
+      rgba(184, 138, 58, 0.06),
       transparent 55%
     ),
     var(--black-soft);
@@ -1193,7 +1193,7 @@ footer {
   content: "";
   position: absolute;
   inset: 0;
-  border-top: 1px solid rgba(201, 168, 76, 0.25);
+  border-top: 1px solid rgba(184, 138, 58, 0.25);
   opacity: 0.4;
   pointer-events: none;
 }
@@ -1246,7 +1246,7 @@ footer {
   color: var(--gold);
   background: radial-gradient(
     circle at top,
-    rgba(201, 168, 76, 0.15),
+    rgba(184, 138, 58, 0.15),
     transparent 65%
   );
   transform: translateY(-1px);
@@ -1353,7 +1353,7 @@ footer {
   letter-spacing: 0.25em;
   text-transform: uppercase;
   border-radius: 999px;
-  border: 1px solid rgba(201, 168, 76, 0.75);
+  border: 1px solid rgba(184, 138, 58, 0.75);
   background: transparent;
   background-image: linear-gradient(
     120deg,

@@ -42,8 +42,8 @@ const STEPS: BookingStep[] = ["service", "stylist", "datetime", "phone", "info"]
 const CHIP_BASE =
   "min-h-[44px] rounded-lg border text-left transition-colors duration-200 touch-manipulation";
 const CHIP_IDLE =
-  "border-[#2a2a2a] bg-[#0f0f0f] text-[#f5f0e8] hover:border-[#ab832e]/50 active:border-[#ab832e]";
-const CHIP_ACTIVE = "border-[#ab832e] bg-[#ab832e]/15 text-[#ede583] ring-1 ring-[#ab832e]/40";
+  "border-[#2a2a2a] bg-[#1a1a1a] text-[#f5f0e8] hover:border-[#b88a3a]/50 active:border-[#b88a3a]";
+const CHIP_ACTIVE = "border-[#b88a3a] bg-[#b88a3a]/15 text-[#f0e68c] ring-1 ring-[#b88a3a]/40";
 
 const TEXTS = {
   en: {
@@ -503,18 +503,18 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
     >
       <button
         type="button"
-        className="absolute inset-0 bg-black/85 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-black/90 backdrop-blur-[3px]"
         aria-label="Close"
         onClick={resetAndClose}
       />
 
       <div
-        className="relative z-10 flex h-[100dvh] w-full max-h-[100dvh] flex-col overflow-hidden border-[#222] bg-[#0d0d0d] shadow-2xl sm:h-auto sm:max-h-[min(88dvh,760px)] sm:max-w-lg sm:rounded-2xl sm:border"
+        className="relative z-10 flex h-[100dvh] w-full max-h-[100dvh] flex-col overflow-hidden border-2 border-[#b88a3a] bg-gradient-to-b from-[#1a1a1a] via-[#b88a3a]/15 to-[#1a1a1a] shadow-2xl shadow-[#b88a3a]/40 sm:h-auto sm:max-h-[min(88dvh,760px)] sm:max-w-lg sm:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[#1f1f1f] px-4 py-4 sm:px-6">
+        <header className="flex shrink-0 items-center justify-between gap-3 border-b-2 border-[#b88a3a]/60 bg-gradient-to-b from-[#2a2a2a] via-[#252525] to-[#1a1a1a] px-4 py-4 sm:px-6">
           <div>
-            <p className="font-be text-[10px] uppercase tracking-[0.35em] text-[#8a8068]">
+            <p className="font-be text-[10px] uppercase tracking-[0.35em] text-[#f0e68c]">
               Be. Hair &amp; Barber
             </p>
             <h2
@@ -527,14 +527,14 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
           <button
             type="button"
             onClick={resetAndClose}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] text-[#b0a898] transition-colors hover:border-[#ab832e] hover:text-[#ede583]"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border-2 border-[#b88a3a] bg-[#222] text-[#f0e68c] transition-all hover:border-[#f0e68c] hover:text-[#f0e68c] hover:bg-[#b88a3a]/25 hover:shadow-[0_0_30px_rgba(184,138,58,0.6)]"
           >
             <X className="h-5 w-5" strokeWidth={1.5} />
           </button>
         </header>
 
         {!bookingSuccess && (
-          <div className="shrink-0 border-b border-[#1f1f1f] px-4 py-4 sm:px-6">
+          <div className="shrink-0 border-b-2 border-[#b88a3a]/60 bg-gradient-to-b from-[#2a2a2a] to-[#1a1a1a]/80 px-4 py-4 sm:px-6">
             <div className="flex items-center justify-between gap-1">
               {STEPS.map((s, i) => {
                 const done = stepIndex > i;
@@ -543,19 +543,19 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                   <div key={s} className="flex flex-1 items-center">
                     <div className="flex flex-col items-center gap-1.5 w-full min-w-0">
                       <div
-                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
+                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-all ${
                           active
-                            ? "be-gold-gradient text-[#0a0a0a]"
+                            ? "be-gold-gradient text-[#0a0a0a] shadow-lg shadow-[#b88a3a]/60 ring-2 ring-[#f0e68c]"
                             : done
-                              ? "border border-[#ab832e]/60 bg-[#ab832e]/10 text-[#ede583]"
-                              : "border border-[#2a2a2a] bg-[#141414] text-[#5c5c5c]"
+                              ? "border-2 border-[#b88a3a]/80 bg-[#b88a3a]/25 text-[#f0e68c]"
+                              : "border border-[#2a2a2a] bg-[#1a1a1a] text-[#6b6b6b]"
                         }`}
                       >
                         {done ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : i + 1}
                       </div>
                       <span
                         className={`hidden text-[9px] uppercase tracking-wider sm:block truncate w-full text-center ${
-                          active ? "text-[#ede583]" : "text-[#6b6b6b]"
+                          active ? "text-[#f0e68c] font-semibold" : "text-[#6b6b6b]"
                         }`}
                       >
                         {s === "service" && (lang === "sk" ? "Služba" : "Service")}
@@ -568,7 +568,7 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                     {i < STEPS.length - 1 && (
                       <div
                         className={`mx-0.5 h-px w-full min-w-[8px] max-w-[24px] shrink ${
-                          stepIndex > i ? "bg-[#ab832e]/50" : "bg-[#2a2a2a]"
+                          stepIndex > i ? "bg-[#b88a3a]/80" : "bg-[#2a2a2a]"
                         }`}
                         aria-hidden
                       />
@@ -581,88 +581,88 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
         )}
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain no-scrollbar px-4 py-5 sm:px-6 sm:py-6">
-          {bookingSuccess && confirmation ? (
-            <div className="space-y-6 pb-2">
-              <div className="flex flex-col items-center text-center">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full be-gold-gradient shadow-lg shadow-black/40">
-                  <Check className="h-8 w-8 text-[#0a0a0a]" strokeWidth={2} />
-                </div>
-                <p className="font-be text-xl text-[#f5f0e8]">{t.success}</p>
-                <p className="mt-1 max-w-sm text-sm leading-relaxed text-[#b0a898]">{t.successMsg}</p>
-                <p className="mt-3 max-w-sm text-xs font-medium leading-relaxed text-[#ede583]/90">
-                  {t.successHint}
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-[#ab832e]/35 bg-[#101010] p-4 text-left text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#8a8068]">
-                  {t.successRef}
-                </p>
-                <p className="mt-1 break-all font-mono text-xs text-[#ede583]">{confirmation.id}</p>
-
-                <div className="mt-4 space-y-2.5 border-t border-[#252018] pt-4">
-                  <div className="flex justify-between gap-3">
-                    <span className="shrink-0 text-[#6b655c]">{t.successYourName}</span>
-                    <span className="text-right text-[#f5f0e8]">{confirmation.customerName}</span>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <span className="shrink-0 text-[#6b655c]">{t.successPhone}</span>
-                    <span className="text-right text-[#f5f0e8]">{confirmation.customerPhone}</span>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <span className="shrink-0 text-[#6b655c]">{t.successService}</span>
-                    <span className="max-w-[60%] text-right font-medium text-[#ede583]">
-                      {confirmation.serviceName}
-                    </span>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <span className="shrink-0 text-[#6b655c]">{t.successStylist}</span>
-                    <span className="text-right text-[#f5f0e8]">{confirmation.stylistName}</span>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <span className="shrink-0 text-[#6b655c]">{t.successWhen}</span>
-                    <span className="text-right text-[#f5f0e8]">
-                      {formatBookingDateLong(confirmation.dateYmd, lang)}
-                      <br />
-                      <span className="font-be text-base font-semibold text-[#ede583]">
-                        {formatBookingTimeHm(confirmation.startTime)} – {formatBookingTimeHm(confirmation.endTime)}
-                      </span>
-                    </span>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <span className="shrink-0 text-[#6b655c]">{t.successDuration}</span>
-                    <span className="text-[#f5f0e8]">{confirmation.durationMinutes} min</span>
-                  </div>
-                  {confirmation.notes ? (
-                    <div className="border-t border-[#252018] pt-3">
-                      <span className="text-[#6b655c]">{t.successNotes}</span>
-                      <p className="mt-1 text-[#b0a898]">{confirmation.notes}</p>
+              {bookingSuccess && confirmation ? (
+                <div className="space-y-6 pb-2">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full be-gold-gradient shadow-lg shadow-[#b88a3a]/40 ring-2 ring-[#b88a3a]/60">
+                      <Check className="h-8 w-8 text-[#0a0a0a]" strokeWidth={2.5} />
                     </div>
-                  ) : null}
-                  <div className="flex justify-between border-t border-[#252018] pt-3 font-be text-lg font-semibold text-[#ede583]">
-                    <span>{t.successTotal}</span>
-                    <span>{confirmation.price}€</span>
+                    <p className="font-be text-xl text-[#f5f0e8]">{t.success}</p>
+                    <p className="mt-1 max-w-sm text-sm leading-relaxed text-[#c8c0b0]">{t.successMsg}</p>
+                    <p className="mt-3 max-w-sm text-xs font-medium leading-relaxed text-[#f0e68c]/90">
+                      {t.successHint}
+                    </p>
                   </div>
+
+                  <div className="rounded-xl border-2 border-[#b88a3a]/60 bg-gradient-to-b from-[#1a1a1a] to-[#141414] p-4 text-left text-sm shadow-xl shadow-[#b88a3a]/20">
+                    <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#f0e68c]">
+                      {t.successRef}
+                    </p>
+                    <p className="mt-1 break-all font-mono text-xs text-[#f0e68c]">{confirmation.id}</p>
+
+                    <div className="mt-4 space-y-2.5 border-t-2 border-[#3a3a2a] pt-4">
+                      <div className="flex justify-between gap-3">
+                        <span className="shrink-0 text-[#8a8068]">{t.successYourName}</span>
+                        <span className="text-right text-[#f5f0e8]">{confirmation.customerName}</span>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <span className="shrink-0 text-[#8a8068]">{t.successPhone}</span>
+                        <span className="text-right text-[#f5f0e8]">{confirmation.customerPhone}</span>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <span className="shrink-0 text-[#8a8068]">{t.successService}</span>
+                        <span className="max-w-[60%] text-right font-medium text-[#f0e68c]">
+                          {confirmation.serviceName}
+                        </span>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <span className="shrink-0 text-[#8a8068]">{t.successStylist}</span>
+                        <span className="text-right text-[#f5f0e8]">{confirmation.stylistName}</span>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <span className="shrink-0 text-[#8a8068]">{t.successWhen}</span>
+                        <span className="text-right text-[#f5f0e8]">
+                          {formatBookingDateLong(confirmation.dateYmd, lang)}
+                          <br />
+                          <span className="font-be text-base font-semibold text-[#f0e68c]">
+                            {formatBookingTimeHm(confirmation.startTime)} – {formatBookingTimeHm(confirmation.endTime)}
+                          </span>
+                        </span>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <span className="shrink-0 text-[#8a8068]">{t.successDuration}</span>
+                        <span className="text-[#f5f0e8]">{confirmation.durationMinutes} min</span>
+                      </div>
+                      {confirmation.notes ? (
+                        <div className="border-t-2 border-[#3a3a2a] pt-3">
+                          <span className="text-[#8a8068]">{t.successNotes}</span>
+                          <p className="mt-1 text-[#c8c0b0]">{confirmation.notes}</p>
+                        </div>
+                      ) : null}
+                      <div className="flex justify-between border-t-2 border-[#3a3a2a] pt-3 font-be text-lg font-semibold text-[#f0e68c]">
+                        <span>{t.successTotal}</span>
+                        <span>{confirmation.price}€</span>
+                      </div>
+                    </div>
+
+                    <p className="mt-4 text-center text-[10px] uppercase tracking-[0.15em] text-[#6b655c]">
+                      {t.successTimezone}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={resetAndClose}
+                    className="h-12 w-full rounded-lg be-gold-gradient text-xs font-semibold uppercase tracking-[0.2em] text-[#0a0a0a] shadow-xl shadow-[#b88a3a]/50 hover:shadow-[#b88a3a]/70 transition-shadow"
+                  >
+                    {t.successClose}
+                  </button>
                 </div>
-
-                <p className="mt-4 text-center text-[10px] uppercase tracking-[0.15em] text-[#5c574f]">
-                  {t.successTimezone}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={resetAndClose}
-                className="h-12 w-full rounded-lg be-gold-gradient text-xs font-semibold uppercase tracking-[0.2em] text-[#0a0a0a]"
-              >
-                {t.successClose}
-              </button>
-            </div>
-          ) : (
+              ) : (
             <>
               {step === "service" && (
                 <div className="space-y-5">
-                  <p className="text-xs uppercase tracking-[0.2em] text-[#8a8068]">
+                  <p className="text-xs uppercase tracking-[0.2em] text-[#f0e68c]">
                     {t.selectService}
                   </p>
                   <div
@@ -675,10 +675,10 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                         key={id}
                         type="button"
                         onClick={() => setServiceCategory(id)}
-                        className={`shrink-0 rounded-full px-4 py-2.5 text-xs font-medium uppercase tracking-wide transition-colors ${
+                        className={`shrink-0 rounded-full px-4 py-2.5 text-xs font-medium uppercase tracking-wide transition-all ${
                           serviceCategory === id
-                            ? "be-gold-gradient text-[#0a0a0a]"
-                            : "border border-[#333] bg-[#141414] text-[#b0a898] hover:border-[#ab832e]/40"
+                            ? "be-gold-gradient text-[#0a0a0a] shadow-md shadow-[#b88a3a]/40"
+                            : "border border-[#2a2a2a] bg-[#1a1a1a] text-[#c8c0b0] hover:border-[#b88a3a]/70 hover:text-[#f0e68c]"
                         }`}
                       >
                         {SERVICE_CATEGORY_LABELS[id][lang]}
@@ -688,30 +688,30 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
 
                   <div className="space-y-2.5">
                     {servicesInCategory.length === 0 ? (
-                      <p className="py-8 text-center text-sm text-[#6b6b6b]">{t.noServices}</p>
+                      <p className="py-8 text-center text-sm text-[#8a8068]">{t.noServices}</p>
                     ) : (
                       servicesInCategory.map((service) => (
                         <button
                           key={service.id}
                           type="button"
                           onClick={() => handleServiceSelect(service)}
-                          className={`${CHIP_BASE} ${CHIP_IDLE} flex w-full items-start justify-between gap-3 p-4 text-left`}
+                          className={`${CHIP_BASE} ${CHIP_IDLE} flex w-full items-start justify-between gap-3 rounded-lg p-4 text-left transition-all hover:bg-[#1a1a1a] hover:border-[#b88a3a]/70 hover:shadow-lg hover:shadow-[#b88a3a]/15`}
                         >
                           <div className="min-w-0 flex-1">
                             <span className="font-be text-sm font-semibold text-[#f5f0e8]">
                               {service.name}
                             </span>
                             {service.description ? (
-                              <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[#8a8068]">
+                              <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[#b88a3a]">
                                 {service.description}
                               </p>
                             ) : null}
-                            <span className="mt-2 inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-[#6b6b6b]">
+                            <span className="mt-2 inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-[#8a8068]">
                               <Clock className="h-3 w-3" />
                               {service.duration_minutes} min
                             </span>
                           </div>
-                          <span className="shrink-0 font-be text-base font-semibold text-[#ede583]">
+                          <span className="shrink-0 font-be text-base font-semibold text-[#f0e68c]">
                             {service.price}€
                           </span>
                         </button>
@@ -723,13 +723,13 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
 
               {step === "stylist" && (
                 <div className="space-y-5">
-                  <p className="text-xs uppercase tracking-[0.2em] text-[#8a8068]">
+                  <p className="text-xs uppercase tracking-[0.2em] text-[#f0e68c]">
                     {t.selectStylist}
                   </p>
                   {loading ? (
-                    <div className="py-16 text-center text-sm text-[#6b6b6b]">{t.loadingSlots}</div>
+                    <div className="py-16 text-center text-sm text-[#8a8068]">{t.loadingSlots}</div>
                   ) : stylists.length === 0 ? (
-                    <p className="py-10 text-center text-sm text-[#8a8068]">{t.noStylists}</p>
+                    <p className="py-10 text-center text-sm text-[#b88a3a]">{t.noStylists}</p>
                   ) : (
                     <div className="space-y-2.5">
                       {stylists.map((stylist) => (
@@ -737,17 +737,17 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                           key={stylist.id}
                           type="button"
                           onClick={() => handleStylistSelect(stylist)}
-                          className={`${CHIP_BASE} ${CHIP_IDLE} flex w-full items-center gap-4 p-4`}
+                          className={`${CHIP_BASE} ${CHIP_IDLE} flex w-full items-center gap-4 p-4 transition-all hover:bg-[#1a1a1a] hover:border-[#b88a3a]/70 hover:shadow-lg hover:shadow-[#b88a3a]/15`}
                         >
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#2a2a2a] bg-[#141414]">
-                            <User className="h-6 w-6 text-[#8a8068]" strokeWidth={1.25} />
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-[#b88a3a]/50 bg-[#1a1a1a]">
+                            <User className="h-6 w-6 text-[#f0e68c]" strokeWidth={1.25} />
                           </div>
                           <div className="min-w-0 text-left">
                             <span className="font-be text-sm font-semibold text-[#f5f0e8]">
                               {stylist.name}
                             </span>
                             {stylist.specialties && stylist.specialties.length > 0 ? (
-                              <p className="mt-0.5 text-xs text-[#6b6b6b]">
+                              <p className="mt-0.5 text-xs text-[#b88a3a]">
                                 {stylist.specialties.join(" · ")}
                               </p>
                             ) : null}
@@ -759,7 +759,7 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                   <button
                     type="button"
                     onClick={() => setStep("service")}
-                    className="w-full py-3 text-center text-xs uppercase tracking-[0.2em] text-[#8a8068] hover:text-[#ede583]"
+                    className="w-full py-3 text-center text-xs uppercase tracking-[0.2em] text-[#f0e68c] hover:text-[#f0e68c] transition-colors"
                   >
                     {t.back}
                   </button>
@@ -768,10 +768,10 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
 
               {step === "datetime" && (
                 <div className="space-y-6">
-                  <p className="text-xs uppercase tracking-[0.2em] text-[#8a8068]">
+                  <p className="text-xs uppercase tracking-[0.2em] text-[#f0e68c]">
                     {t.selectDateTime}
                   </p>
-                  <p className="text-[11px] leading-relaxed text-[#5c574f]">{t.timesNote}</p>
+                  <p className="text-[11px] leading-relaxed text-[#b88a3a]">{t.timesNote}</p>
 
                   <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
                     {availableDates.map((date) => (
@@ -779,7 +779,7 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                         key={date}
                         type="button"
                         onClick={() => handleDateSelect(date)}
-                        className={`${CHIP_BASE} px-2 py-3 text-center text-xs font-medium ${
+                        className={`${CHIP_BASE} px-2 py-3 text-center text-xs font-medium transition-all hover:shadow-lg hover:shadow-[#b88a3a]/20 ${
                           selectedDate === date ? CHIP_ACTIVE : CHIP_IDLE
                         }`}
                       >
@@ -790,11 +790,11 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
 
                   {selectedDate && (
                     <div>
-                      <p className="mb-3 text-xs uppercase tracking-[0.2em] text-[#8a8068]">
+                      <p className="mb-3 text-xs uppercase tracking-[0.2em] text-[#f0e68c]">
                         {t.availableTimes}
                       </p>
                       {loading ? (
-                        <div className="py-10 text-center text-sm text-[#6b6b6b]">
+                        <div className="py-10 text-center text-sm text-[#b88a3a]">
                           {t.loadingSlots}
                         </div>
                       ) : availableSlots.length > 0 ? (
@@ -804,14 +804,14 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                               key={slot.slot_time}
                               type="button"
                               onClick={() => handleTimeSelect(slot.slot_time)}
-                              className={`${CHIP_BASE} py-3 text-center text-sm font-medium ${CHIP_IDLE}`}
+                              className={`${CHIP_BASE} py-3 text-center text-sm font-medium transition-all hover:bg-[#1a1a1a] hover:shadow-lg hover:shadow-[#b88a3a]/15 ${CHIP_IDLE}`}
                             >
                               {slot.slot_time.substring(0, 5)}
                             </button>
                           ))}
                         </div>
                       ) : (
-                        <div className="py-10 text-center text-sm text-[#6b6b6b]">
+                        <div className="py-10 text-center text-sm text-[#b88a3a]">
                           {t.noSlots}
                         </div>
                       )}
@@ -821,7 +821,7 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                   <button
                     type="button"
                     onClick={() => setStep("stylist")}
-                    className="w-full py-3 text-center text-xs uppercase tracking-[0.2em] text-[#8a8068] hover:text-[#ede583]"
+                    className="w-full py-3 text-center text-xs uppercase tracking-[0.2em] text-[#f0e68c] hover:text-[#f0e68c] transition-colors"
                   >
                     {t.back}
                   </button>
@@ -836,10 +836,10 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                     handlePhoneContinue();
                   }}
                 >
-                  <p className="text-xs uppercase tracking-[0.2em] text-[#8a8068]">{t.selectPhone}</p>
-                  <p className="text-[11px] leading-relaxed text-[#5c574f]">{t.phoneHint}</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-[#f0e68c]">{t.selectPhone}</p>
+                  <p className="text-[11px] leading-relaxed text-[#b88a3a]">{t.phoneHint}</p>
                   <label className="block">
-                    <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-[#6b6b6b]">
+                    <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-[#8a8068]">
                       {t.mobileLabel} *
                     </span>
                     <input
@@ -852,13 +852,13 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                         setPhoneError("");
                       }}
                       placeholder={lang === "sk" ? "napr. 0912 345 678" : "e.g. 0912 345 678"}
-                      className="h-12 w-full rounded-lg border border-[#2a2a2a] bg-[#0a0a0a] px-4 text-[#f5f0e8] outline-none focus:border-[#ab832e]"
+                      className="h-12 w-full rounded-lg border-2 border-[#2a2a2a] bg-[#1a1a1a] px-4 text-[#f5f0e8] outline-none transition-all hover:border-[#b88a3a]/60 focus:border-[#b88a3a] focus:ring-2 focus:ring-[#f0e68c]/50"
                     />
                   </label>
                   {phoneError ? (
                     <div
                       role="alert"
-                      className="rounded-lg border border-red-500/35 bg-red-500/[0.08] px-3 py-2.5 text-sm text-red-200/95"
+                      className="rounded-lg border-2 border-red-500/50 bg-red-500/15 px-3 py-2.5 text-sm text-red-200"
                     >
                       {phoneError}
                     </div>
@@ -870,14 +870,14 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                         setPhoneError("");
                         setStep("datetime");
                       }}
-                      className="h-12 flex-1 rounded-lg border border-[#333] text-xs font-semibold uppercase tracking-wider text-[#b0a898] transition-colors hover:border-[#ab832e]"
+                      className="h-12 flex-1 rounded-lg border-2 border-[#2a2a2a] bg-[#1a1a1a] text-xs font-semibold uppercase tracking-wider text-[#c8c0b0] transition-all hover:border-[#b88a3a] hover:text-[#f0e68c] hover:shadow-lg hover:shadow-[#b88a3a]/20"
                     >
                       {t.back}
                     </button>
                     <button
                       type="submit"
                       disabled={!customerPhone.trim()}
-                      className="h-12 flex-[1.35] rounded-lg be-gold-gradient text-xs font-semibold uppercase tracking-wider text-[#0a0a0a] transition-opacity disabled:opacity-40"
+                      className="h-12 flex-[1.35] rounded-lg be-gold-gradient text-xs font-semibold uppercase tracking-wider text-[#0a0a0a] transition-all disabled:opacity-40 shadow-lg shadow-[#b88a3a]/40 hover:shadow-[#b88a3a]/60"
                     >
                       {t.phoneContinue}
                     </button>
@@ -893,22 +893,22 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                     void handleSubmit();
                   }}
                 >
-                  <p className="text-xs uppercase tracking-[0.2em] text-[#8a8068]">{t.yourInfo}</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-[#f0e68c]">{t.yourInfo}</p>
 
                   <label className="block">
-                    <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-[#6b6b6b]">
+                    <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-[#8a8068]">
                       {t.name} *
                     </span>
                     <input
                       type="text"
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
-                      className="h-12 w-full rounded-lg border border-[#2a2a2a] bg-[#0a0a0a] px-4 text-[#f5f0e8] outline-none transition-colors focus:border-[#ab832e]"
+                      className="h-12 w-full rounded-lg border-2 border-[#2a2a2a] bg-[#1a1a1a] px-4 text-[#f5f0e8] outline-none transition-all hover:border-[#b88a3a]/60 focus:border-[#b88a3a] focus:ring-2 focus:ring-[#f0e68c]/50"
                     />
                   </label>
 
                   <label className="block">
-                    <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-[#6b6b6b]">
+                    <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-[#8a8068]">
                       {t.notesLabel}
                     </span>
                     <textarea
@@ -916,32 +916,32 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                       onChange={(e) => setNotes(e.target.value)}
                       placeholder={t.notesPlaceholder}
                       rows={3}
-                      className="w-full resize-none rounded-lg border border-[#2a2a2a] bg-[#0a0a0a] px-4 py-3 text-[#f5f0e8] outline-none focus:border-[#ab832e]"
+                      className="w-full resize-none rounded-lg border-2 border-[#2a2a2a] bg-[#1a1a1a] px-4 py-3 text-[#f5f0e8] outline-none transition-all hover:border-[#b88a3a]/60 focus:border-[#b88a3a] focus:ring-2 focus:ring-[#f0e68c]/50"
                     />
                   </label>
 
-                  <div className="rounded-xl border border-[#2a2a2a] bg-[#111] p-4 text-sm">
-                    <div className="flex justify-between gap-2 text-[#8a8068]">
+                  <div className="rounded-xl border-2 border-[#b88a3a]/60 bg-gradient-to-b from-[#1a1a1a] to-[#141414] p-4 text-sm shadow-xl shadow-[#b88a3a]/20">
+                    <div className="flex justify-between gap-2 text-[#f0e68c]">
                       <span>{t.serviceLabel}</span>
                       <span className="max-w-[55%] text-right text-[#f5f0e8]">
                         {selectedService?.name}
                       </span>
                     </div>
-                    <div className="mt-2 flex justify-between gap-2 text-[#8a8068]">
+                    <div className="mt-2 flex justify-between gap-2 text-[#f0e68c]">
                       <span>{t.stylistLabel}</span>
                       <span className="text-[#f5f0e8]">{selectedStylist?.name}</span>
                     </div>
-                    <div className="mt-2 flex justify-between gap-2 text-[#8a8068]">
+                    <div className="mt-2 flex justify-between gap-2 text-[#f0e68c]">
                       <span>{t.whenLabel}</span>
                       <span className="text-right text-[#f5f0e8]">
                         {formatDateChip(selectedDate)} · {selectedTime}
                       </span>
                     </div>
-                    <div className="mt-2 flex justify-between gap-2 text-[#8a8068]">
+                    <div className="mt-2 flex justify-between gap-2 text-[#f0e68c]">
                       <span>{t.phoneLabel}</span>
                       <span className="text-right font-mono text-sm text-[#f5f0e8]">{customerPhone}</span>
                     </div>
-                    <div className="mt-3 flex justify-between border-t border-[#2a2a2a] pt-3 font-be text-lg font-semibold text-[#ede583]">
+                    <div className="mt-3 flex justify-between border-t-2 border-[#3a3a2a] pt-3 font-be text-lg font-semibold text-[#f0e68c]">
                       <span>{t.totalLabel}</span>
                       <span>{selectedService?.price}€</span>
                     </div>
@@ -950,7 +950,7 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                   {submitError ? (
                     <div
                       role="alert"
-                      className="rounded-lg border border-red-500/35 bg-red-500/[0.08] px-3 py-2.5 text-sm text-red-200/95"
+                      className="rounded-lg border-2 border-red-500/50 bg-red-500/15 px-3 py-2.5 text-sm text-red-200"
                     >
                       <p className="font-medium">{t.bookingSaveFailed}</p>
                       <p className="mt-1 break-words text-xs opacity-90">{submitError}</p>
@@ -964,14 +964,14 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
                         setSubmitError("");
                         setStep("phone");
                       }}
-                      className="h-12 flex-1 rounded-lg border border-[#333] text-xs font-semibold uppercase tracking-wider text-[#b0a898] transition-colors hover:border-[#ab832e]"
+                      className="h-12 flex-1 rounded-lg border-2 border-[#2a2a2a] bg-[#1a1a1a] text-xs font-semibold uppercase tracking-wider text-[#c8c0b0] transition-all hover:border-[#b88a3a] hover:text-[#f0e68c] hover:shadow-lg hover:shadow-[#b88a3a]/20"
                     >
                       {t.back}
                     </button>
                     <button
                       type="submit"
                       disabled={!customerName.trim() || loading}
-                      className="h-12 flex-[1.35] rounded-lg be-gold-gradient text-xs font-semibold uppercase tracking-wider text-[#0a0a0a] transition-opacity disabled:opacity-40"
+                      className="h-12 flex-[1.35] rounded-lg be-gold-gradient text-xs font-semibold uppercase tracking-wider text-[#0a0a0a] transition-all disabled:opacity-40 shadow-xl shadow-[#b88a3a]/50 hover:shadow-[#b88a3a]/70"
                     >
                       {loading ? "…" : t.bookNow}
                     </button>
