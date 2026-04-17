@@ -67,7 +67,7 @@ const team: TeamMember[] = [
   },
   {
     name: "Hank",
-    role: "Head Spa Expert",
+    role: "DAMSKY SALÓN - Head Spa & Masáž",
     bio: {
       en: "Scalp and hair treatment expert. Combines traditional massage with modern spa therapies for a deeply relaxing experience.",
       sk: "Expert na ošetrenie vlasov a pokožky hlavy. Spája tradičné masáže s modernými spa procedúrami pre hlboký oddych.",
