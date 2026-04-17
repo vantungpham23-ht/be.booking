@@ -38,7 +38,7 @@ type TeamMember = {
 
 const team: TeamMember[] = [
   {
-    name: "Quan K.",
+    name: "Quan K",
     role: "Master Barber",
     bio: {
       en: "Men's grooming specialist with 3+ years of experience. Master of classic fades and modern beard design.",
@@ -52,10 +52,10 @@ const team: TeamMember[] = [
     avatarAlt: "Marek V. – Master Barber tại Be. Hair & Barber",
   },
   {
-    name: "Son Ngo.",
+    name: "Sonny",
     role: "Master Barber",
     bio: {
-      en: "Men's grooming specialist with 2+ years of experience. Master of classic fades and modern beard design",
+      en: "Men's grooming specialist with 3+ years of experience. Master of classic fades and modern beard design",
       sk: "Špecialista na pánske strihy s viac ako 2 rokmi skúseností. Majster klasických fade strihov a modernej úpravy brady.",
     },
     focus: {
@@ -66,7 +66,7 @@ const team: TeamMember[] = [
     avatarAlt: "Lucia K. – Color Specialist tại Be. Hair & Barber",
   },
   {
-    name: "Hank.",
+    name: "Hank",
     role: "Head Spa Expert",
     bio: {
       en: "Scalp and hair treatment expert. Combines traditional massage with modern spa therapies for a deeply relaxing experience.",
