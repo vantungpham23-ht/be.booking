@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase, type Service, type Stylist } from "@/lib/supabase";
+import { Trash2, Plus, Calendar, Clock } from "lucide-react";
+import { supabase, type Service, type Stylist, type StylistException } from "@/lib/supabase";
 import { normalizeServices } from "@/lib/normalize-service";
 import {
   SERVICE_CATEGORY_IDS,
@@ -21,6 +22,20 @@ import {
   adminPrimaryBtnSm,
 } from "@/lib/admin-ui-classes";
 
+const DAY_NAMES = ["Ne", "Po", "Ut", "St", "Št", "Pi", "So"];
+
+function formatDate(ymd: string): string {
+  const [y, m, d] = ymd.split("-").map(Number);
+  return `${d}.${m}.${y}`;
+}
+
+function formatTime(t: string | null): string {
+  if (!t) return "";
+  const m = t.match(/^(\d{1,2}):(\d{2})/);
+  if (m) return `${m[1].padStart(2, "0")}:${m[2]}`;
+  return t.slice(0, 5);
+}
+
 export function AdminStylists() {
   const [stylists, setStylists] = useState<Stylist[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -36,6 +51,14 @@ export function AdminStylists() {
   const [editEmail, setEditEmail] = useState("");
   const [editSpecialties, setEditSpecialties] = useState("");
   const [selectedServiceIds, setSelectedServiceIds] = useState<Set<string>>(new Set());
+
+  // Exception management state
+  const [exceptions, setExceptions] = useState<StylistException[]>([]);
+  const [newExceptionDate, setNewExceptionDate] = useState("");
+  const [newExceptionStartTime, setNewExceptionStartTime] = useState("");
+  const [newExceptionEndTime, setNewExceptionEndTime] = useState("");
+  const [newExceptionReason, setNewExceptionReason] = useState("");
+  const [isFullDay, setIsFullDay] = useState(true);
 
   const load = async () => {
     setLoading(true);
@@ -60,6 +83,16 @@ export function AdminStylists() {
     setSelectedServiceIds(new Set((data ?? []).map((r) => r.service_id)));
   };
 
+  const loadStylistExceptions = async (stylistId: string) => {
+    const { data } = await supabase
+      .from("stylist_exceptions")
+      .select("*")
+      .eq("stylist_id", stylistId)
+      .order("exception_date")
+      .order("start_time");
+    setExceptions((data as StylistException[]) ?? []);
+  };
+
   const startEdit = async (s: Stylist) => {
     setEditingId(s.id);
     setEditName(s.name);
@@ -67,11 +100,19 @@ export function AdminStylists() {
     setEditEmail(s.email ?? "");
     setEditSpecialties(s.specialties?.join(", ") ?? "");
     await loadStylistServices(s.id);
+    await loadStylistExceptions(s.id);
+    // Reset exception form
+    setNewExceptionDate("");
+    setNewExceptionStartTime("");
+    setNewExceptionEndTime("");
+    setNewExceptionReason("");
+    setIsFullDay(true);
   };
 
   const cancelEdit = () => {
     setEditingId(null);
     setSelectedServiceIds(new Set());
+    setExceptions([]);
   };
 
   const toggleService = (serviceId: string) => {
@@ -143,6 +184,43 @@ export function AdminStylists() {
     load();
   };
 
+  // Exception management functions
+  const addException = async () => {
+    if (!editingId || !newExceptionDate) return;
+
+    let start_time: string | null = null;
+    let end_time: string | null = null;
+
+    if (!isFullDay) {
+      start_time = newExceptionStartTime || null;
+      end_time = newExceptionEndTime || null;
+    }
+
+    const { error } = await supabase.from("stylist_exceptions").insert({
+      stylist_id: editingId,
+      exception_date: newExceptionDate,
+      start_time,
+      end_time,
+      reason: newExceptionReason.trim() || null,
+    });
+
+    if (!error) {
+      setNewExceptionDate("");
+      setNewExceptionStartTime("");
+      setNewExceptionEndTime("");
+      setNewExceptionReason("");
+      setIsFullDay(true);
+      await loadStylistExceptions(editingId);
+    }
+  };
+
+  const deleteException = async (id: string) => {
+    await supabase.from("stylist_exceptions").delete().eq("id", id);
+    if (editingId) {
+      await loadStylistExceptions(editingId);
+    }
+  };
+
   const servicesByCategory = SERVICE_CATEGORY_IDS.map((cat) => ({
     cat,
     items: services.filter((s) => s.category === cat),
@@ -203,28 +281,33 @@ export function AdminStylists() {
               <Card key={s.id} className={cn(adminCard)}>
                 <CardContent className="p-5 sm:p-6">
                   {editingId === s.id ? (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                        <input className={adminInput} value={editName} onChange={(e) => setEditName(e.target.value)} />
-                        <input
-                          className={adminInput}
-                          placeholder="Phone"
-                          value={editPhone}
-                          onChange={(e) => setEditPhone(e.target.value)}
-                        />
-                        <input
-                          className={adminInput}
-                          placeholder="Email"
-                          value={editEmail}
-                          onChange={(e) => setEditEmail(e.target.value)}
-                        />
-                        <input
-                          className={adminInput}
-                          placeholder="Specialties, comma-separated"
-                          value={editSpecialties}
-                          onChange={(e) => setEditSpecialties(e.target.value)}
-                        />
+                    <div className="space-y-6">
+                      {/* Basic Info */}
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                          <input className={adminInput} value={editName} onChange={(e) => setEditName(e.target.value)} />
+                          <input
+                            className={adminInput}
+                            placeholder="Phone"
+                            value={editPhone}
+                            onChange={(e) => setEditPhone(e.target.value)}
+                          />
+                          <input
+                            className={adminInput}
+                            placeholder="Email"
+                            value={editEmail}
+                            onChange={(e) => setEditEmail(e.target.value)}
+                          />
+                          <input
+                            className={adminInput}
+                            placeholder="Specialties, comma-separated"
+                            value={editSpecialties}
+                            onChange={(e) => setEditSpecialties(e.target.value)}
+                          />
+                        </div>
                       </div>
+
+                      {/* Services Selection */}
                       <div className="no-scrollbar max-h-[50vh] space-y-4 overflow-y-auto pr-1">
                         {servicesByCategory.map(({ cat, items }) =>
                           items.length === 0 ? null : (
@@ -257,6 +340,159 @@ export function AdminStylists() {
                           )
                         )}
                       </div>
+
+                      {/* Schedule Exceptions Management */}
+                      <div className="rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] p-4">
+                        <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#f0e68c]">
+                          <Calendar className="h-4 w-4" />
+                          Schedule Exceptions / Days Off
+                        </h3>
+
+                        {/* Add Exception Form */}
+                        <div className="mb-4 space-y-3 rounded-lg border border-[#333] bg-[#080808] p-3">
+                          <p className="text-xs text-[#8a8477]">
+                            Add days off or blocked time slots. Customers won&apos;t be able to book during these times.
+                          </p>
+                          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                            <div>
+                              <label className={adminLabel}>Date *</label>
+                              <input
+                                type="date"
+                                className={adminInput}
+                                value={newExceptionDate}
+                                onChange={(e) => setNewExceptionDate(e.target.value)}
+                              />
+                            </div>
+                            <div className="flex items-center pt-5">
+                              <label className="flex items-center gap-2 text-sm text-[#c4bcb0]">
+                                <input
+                                  type="checkbox"
+                                  className="h-4 w-4 rounded border-[#333] bg-[#080808] text-[#ab832e] focus:ring-[#ab832e]/40"
+                                  checked={isFullDay}
+                                  onChange={(e) => setIsFullDay(e.target.checked)}
+                                />
+                                Full day off
+                              </label>
+                            </div>
+                            {!isFullDay && (
+                              <>
+                                <div>
+                                  <label className={adminLabel}>From (optional)</label>
+                                  <input
+                                    type="time"
+                                    className={adminInput}
+                                    value={newExceptionStartTime}
+                                    onChange={(e) => setNewExceptionStartTime(e.target.value)}
+                                  />
+                                </div>
+                                <div>
+                                  <label className={adminLabel}>To (optional)</label>
+                                  <input
+                                    type="time"
+                                    className={adminInput}
+                                    value={newExceptionEndTime}
+                                    onChange={(e) => setNewExceptionEndTime(e.target.value)}
+                                  />
+                                </div>
+                              </>
+                            )}
+                            {isFullDay && (
+                              <div className="sm:col-span-2 lg:col-span-2">
+                                <label className={adminLabel}>Reason (optional)</label>
+                                <input
+                                  className={adminInput}
+                                  placeholder="e.g. Leave, Urgent work, Meeting"
+                                  value={newExceptionReason}
+                                  onChange={(e) => setNewExceptionReason(e.target.value)}
+                                />
+                              </div>
+                            )}
+                          </div>
+                          {!isFullDay && (
+                            <div>
+                              <label className={adminLabel}>Reason (optional)</label>
+                              <input
+                                className={adminInput}
+                                placeholder="e.g. Leave, Urgent work, Meeting"
+                                value={newExceptionReason}
+                                onChange={(e) => setNewExceptionReason(e.target.value)}
+                              />
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={addException}
+                            disabled={!newExceptionDate}
+                            className={cn(
+                              adminPrimaryBtnSm,
+                              "flex items-center gap-1.5",
+                              !newExceptionDate && "opacity-50 cursor-not-allowed"
+                            )}
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                            Add Exception
+                          </button>
+                        </div>
+
+                        {/* Exceptions List */}
+                        {exceptions.length > 0 ? (
+                          <div className="space-y-2">
+                            <h4 className="text-xs font-medium uppercase tracking-wider text-[#8a8477]">
+                              Current exceptions
+                            </h4>
+                            <div className="max-h-[200px] space-y-2 overflow-y-auto pr-1">
+                              {exceptions.map((exc) => {
+                                const dow = new Date(exc.exception_date + "T12:00:00").getDay();
+                                const isFullDayExc = !exc.start_time && !exc.end_time;
+                                return (
+                                  <div
+                                    key={exc.id}
+                                    className="flex items-center justify-between rounded-lg border border-[#333] bg-[#080808] px-3 py-2"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className="flex items-center gap-1.5 text-sm">
+                                        <Calendar className="h-3.5 w-3.5 text-[#b88a3a]" />
+                                        <span className="font-medium text-[#f5f0e8]">
+                                          {DAY_NAMES[dow]} {formatDate(exc.exception_date)}
+                                        </span>
+                                      </div>
+                                      {isFullDayExc ? (
+                                        <span className="rounded bg-red-900/30 px-2 py-0.5 text-xs text-red-400/80">
+                                          Full day
+                                        </span>
+                                      ) : (
+                                        <div className="flex items-center gap-1.5 text-xs text-[#8a8477]">
+                                          <Clock className="h-3 w-3" />
+                                          <span>
+                                            {exc.start_time ? formatTime(exc.start_time) : "00:00"} -{" "}
+                                            {exc.end_time ? formatTime(exc.end_time) : "23:59"}
+                                          </span>
+                                        </div>
+                                      )}
+                                      {exc.reason && (
+                                        <span className="text-xs text-[#8a8477]">({exc.reason})</span>
+                                      )}
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => deleteException(exc.id)}
+                                      className="rounded p-1 text-red-400/60 transition-colors hover:bg-red-900/30 hover:text-red-400"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="py-3 text-center text-xs text-[#5c574f]">
+                            No exceptions scheduled
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Action Buttons */}
                       <div className="flex flex-wrap gap-2">
                         <button type="button" onClick={saveEdit} className={adminPrimaryBtnSm}>
                           Save

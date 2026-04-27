@@ -72,3 +72,14 @@ export type WorkingHours = {
   start_time: string;
   end_time: string;
 };
+
+/** Exception: ngày nghỉ hoặc khung giờ nghỉ cụ thể của thợ */
+export type StylistException = {
+  id: string;
+  stylist_id: string;
+  exception_date: string; // "YYYY-MM-DD"
+  start_time: string | null; // "HH:MM" - null = từ đầu ngày
+  end_time: string | null; // "HH:MM" - null = đến cuối ngày
+  reason: string | null;
+  created_at: string;
+};

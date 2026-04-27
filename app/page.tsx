@@ -52,6 +52,20 @@ const team: TeamMember[] = [
     avatarAlt: "Marek V. – Master Barber tại Be. Hair & Barber",
   },
   {
+    name: "Jaaycie JT",
+    role: "Master Stylist & Barber",
+    bio: {
+      en: "An expert in both worlds: specializing in precision men's fades and beard designs, as well as creative women's cuts and coloring.",
+      sk: "Expert v oboch svetoch: špecializuje sa na precízne pánske fade strihy a úpravu brady, ako aj kreatívne dámske strihy a farbenie.",
+    },
+    focus: {
+      en: "Men's & Women's Styling · Color Specialist · Precision Fades",
+      sk: "Pánsky a dámsky styling · Expert na farbenie · Precízne fade strihy",
+    },
+    avatarSrc: "/jaaycie.jpg", // Bạn có thể cập nhật lại tên file ảnh nếu cần
+    avatarAlt: "Jaaycie JT — Master Stylist & Barber tại Be. Hair & Barber",
+  },
+  {
     name: "Sonny",
     role: "Master Barber",
     bio: {
