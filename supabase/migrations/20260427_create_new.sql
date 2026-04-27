@@ -256,11 +256,11 @@ BEGIN
     v_slot_start := v_work_start;
     
     -- If booking for today, start from next available slot (15 min from now)
-    IF p_date = CURRENT_DATE AND v_slot_start < v_current_time + INTERVAL '15 minutes' THEN
+    IF p_date = CURRENT_DATE AND v_slot_start < v_current_time + INTERVAL '30 minutes' THEN
         -- Round up to next 15-minute interval
-        v_slot_start := v_current_time + INTERVAL '15 minutes';
+        v_slot_start := v_current_time + INTERVAL '30 minutes';
         v_slot_start := DATE_TRUNC('minute', v_slot_start) + 
-                       (FLOOR(EXTRACT(MINUTE FROM v_slot_start)::INTEGER / 15) * INTERVAL '15 minutes');
+                       (FLOOR(EXTRACT(MINUTE FROM v_slot_start)::INTEGER / 15) * INTERVAL '30 minutes');
     END IF;
     
     -- Generate slots at 15-minute intervals
@@ -287,7 +287,7 @@ BEGIN
         
         IF v_has_exception THEN
             -- Move to next 15-minute slot
-            v_slot_start := v_slot_start + INTERVAL '15 minutes';
+            v_slot_start := v_slot_start + INTERVAL '30 minutes';
             CONTINUE;
         END IF;
         
@@ -314,7 +314,7 @@ BEGIN
         END IF;
         
         -- Move to next 15-minute slot
-        v_slot_start := v_slot_start + INTERVAL '15 minutes';
+        v_slot_start := v_slot_start + INTERVAL '30 minutes';
     END LOOP;
 END;
 $$;
