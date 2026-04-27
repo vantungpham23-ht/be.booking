@@ -62,7 +62,7 @@ const team: TeamMember[] = [
       en: "Men's & Women's Styling · Color Specialist · Precision Fades",
       sk: "Pánsky a dámsky styling · Expert na farbenie · Precízne fade strihy",
     },
-    avatarSrc: "/jaaycie.jpg", // Bạn có thể cập nhật lại tên file ảnh nếu cần
+    avatarSrc: "/jaacie.png", // Bạn có thể cập nhật lại tên file ảnh nếu cần
     avatarAlt: "Jaaycie JT — Master Stylist & Barber tại Be. Hair & Barber",
   },
   {
