@@ -79,22 +79,22 @@ const team: TeamMember[] = [
     avatarSrc: "/son.svg",
     avatarAlt: "Lucia K. – Color Specialist tại Be. Hair & Barber",
   },
+  // {
+  //   name: "Hank",
+  //   role: "DAMSKY SALÓN - Head Spa & Masáž",
+  //   bio: {
+  //     en: "Scalp and hair treatment expert. Combines traditional massage with modern spa therapies for a deeply relaxing experience.",
+  //     sk: "Expert na ošetrenie vlasov a pokožky hlavy. Spája tradičné masáže s modernými spa procedúrami pre hlboký oddych.",
+  //   },
+  //   focus: {
+  //     en: "Head spa · Massage · Keratin",
+  //     sk: "Head spa · Masáž · Keratín",
+  //   },
+  //   avatarSrc: "/hank.svg",
+  //   avatarAlt: "Jana M. – Head Spa Expert tại Be. Hair & Barber",
+  // },
   {
-    name: "Hank",
-    role: "DAMSKY SALÓN - Head Spa & Masáž",
-    bio: {
-      en: "Scalp and hair treatment expert. Combines traditional massage with modern spa therapies for a deeply relaxing experience.",
-      sk: "Expert na ošetrenie vlasov a pokožky hlavy. Spája tradičné masáže s modernými spa procedúrami pre hlboký oddych.",
-    },
-    focus: {
-      en: "Head spa · Massage · Keratin",
-      sk: "Head spa · Masáž · Keratín",
-    },
-    avatarSrc: "/hank.svg",
-    avatarAlt: "Jana M. – Head Spa Expert tại Be. Hair & Barber",
-  },
-  {
-    name: "Anna",
+    name: "Ana",
     role: "Head Spa & Masáž",
     bio: {
       en: "Scalp and hair treatment expert. Combines traditional massage with modern spa therapies for a deeply relaxing experience.",
