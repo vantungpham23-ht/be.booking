@@ -37,6 +37,8 @@ export type Stylist = {
   avatar_url: string | null;
   specialties: string[] | null;
   is_active: boolean;
+  custom_work_start: string | null; // e.g. "14:00" — applies to ALL days
+  custom_work_end:   string | null; // e.g. "19:00" — null means follow salon schedule
   created_at: string;
 };
 
@@ -82,4 +84,14 @@ export type StylistException = {
   end_time: string | null; // "HH:MM" - null = đến cuối ngày
   reason: string | null;
   created_at: string;
+};
+
+/** Giờ mở cửa mặc định của toàn tiệm, theo ngày trong tuần */
+export type SalonSchedule = {
+  id: string;
+  day_of_week: number; // 0=Sunday, 1=Monday, ..., 6=Saturday
+  start_time: string; // "HH:MM"
+  end_time: string;   // "HH:MM"
+  is_active: boolean;
+  updated_at: string;
 };

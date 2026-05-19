@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2, Plus, Calendar, Clock } from "lucide-react";
+import { Trash2, Plus, Calendar, Clock, X } from "lucide-react";
 import { supabase, type Service, type Stylist, type StylistException } from "@/lib/supabase";
 import { normalizeServices } from "@/lib/normalize-service";
 import {
@@ -60,6 +60,10 @@ export function AdminStylists() {
   const [newExceptionReason, setNewExceptionReason] = useState("");
   const [isFullDay, setIsFullDay] = useState(true);
 
+  // Custom work hours state
+  const [editCustomStart, setEditCustomStart] = useState("");
+  const [editCustomEnd, setEditCustomEnd] = useState("");
+
   const load = async () => {
     setLoading(true);
     const [stRes, svRes] = await Promise.all([
@@ -99,6 +103,8 @@ export function AdminStylists() {
     setEditPhone(s.phone ?? "");
     setEditEmail(s.email ?? "");
     setEditSpecialties(s.specialties?.join(", ") ?? "");
+    setEditCustomStart(s.custom_work_start ? (s.custom_work_start as string).slice(0, 5) : "");
+    setEditCustomEnd(s.custom_work_end ? (s.custom_work_end as string).slice(0, 5) : "");
     await loadStylistServices(s.id);
     await loadStylistExceptions(s.id);
     // Reset exception form
@@ -113,6 +119,8 @@ export function AdminStylists() {
     setEditingId(null);
     setSelectedServiceIds(new Set());
     setExceptions([]);
+    setEditCustomStart("");
+    setEditCustomEnd("");
   };
 
   const toggleService = (serviceId: string) => {
@@ -138,6 +146,13 @@ export function AdminStylists() {
       .split(",")
       .map((x) => x.trim())
       .filter(Boolean);
+
+    // Build custom hours payload
+    const hasCustomStart = editCustomStart.trim() !== "";
+    const hasCustomEnd   = editCustomEnd.trim()   !== "";
+    const custom_work_start = hasCustomStart && hasCustomEnd ? editCustomStart.trim() : null;
+    const custom_work_end   = hasCustomStart && hasCustomEnd ? editCustomEnd.trim()   : null;
+
     const { error } = await supabase
       .from("stylists")
       .update({
@@ -145,6 +160,8 @@ export function AdminStylists() {
         phone: editPhone.trim() || null,
         email: editEmail.trim() || null,
         specialties: specs.length ? specs : null,
+        custom_work_start,
+        custom_work_end,
       })
       .eq("id", editingId);
     if (error) return;
@@ -235,9 +252,8 @@ export function AdminStylists() {
               Add team member
             </h2>
             <p className={`${adminMuted} mt-2 max-w-2xl`}>
-              New staff get default opening hours (Mon–Fri 9–19, Sat 9–18, Sun 10–17). Assign
-              services after creating them, then edit this person to choose which services they
-              perform.
+              New staff follow salon default hours. Edit a team member to set custom hours (applies
+              to all days) or add service assignments.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -305,6 +321,65 @@ export function AdminStylists() {
                             onChange={(e) => setEditSpecialties(e.target.value)}
                           />
                         </div>
+                      </div>
+
+                      {/* Custom Work Hours */}
+                      <div className="rounded-xl border border-[#2a2a2a] bg-[#0f0f0f] p-4">
+                        <h3 className="mb-1 flex items-center gap-2 text-sm font-semibold text-[#f0e68c]">
+                          <Clock className="h-4 w-4" />
+                          Custom Work Hours
+                          <span className="rounded bg-[#1e1e1e] px-1.5 py-0.5 text-[10px] font-normal text-[#8a8275]">
+                            applies to all days
+                          </span>
+                        </h3>
+                        <p className="mb-4 text-xs text-[#8a8477]">
+                          Set once — applies to every day. Leave empty to follow salon default schedule.{" "}
+                          <span className="text-[#b88a3a]">
+                            Exceptions (days off) still apply on top.
+                          </span>
+                        </p>
+                        <div className="flex flex-wrap items-end gap-4">
+                          <div className="min-w-[140px]">
+                            <label className={adminLabel}>Work Start</label>
+                            <input
+                              type="time"
+                              className={cn(adminInput)}
+                              value={editCustomStart}
+                              onChange={(e) => setEditCustomStart(e.target.value)}
+                              placeholder="e.g. 14:00"
+                            />
+                          </div>
+                          <span className="pb-3 text-[#5c574f]">—</span>
+                          <div className="min-w-[140px]">
+                            <label className={adminLabel}>Work End</label>
+                            <input
+                              type="time"
+                              className={cn(adminInput)}
+                              value={editCustomEnd}
+                              onChange={(e) => setEditCustomEnd(e.target.value)}
+                              placeholder="e.g. 19:00"
+                            />
+                          </div>
+                          {(editCustomStart || editCustomEnd) && (
+                            <button
+                              type="button"
+                              onClick={() => { setEditCustomStart(""); setEditCustomEnd(""); }}
+                              className="mb-2.5 flex items-center gap-1.5 rounded-lg border border-red-900/40 bg-red-900/20 px-3 py-1.5 text-xs text-red-400/80 transition-colors hover:border-red-700/60 hover:bg-red-900/30 hover:text-red-400"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                              Remove custom hours
+                            </button>
+                          )}
+                        </div>
+                        {editCustomStart && editCustomEnd && (
+                          <p className="mt-3 rounded bg-[#1a1a0a] px-3 py-2 text-xs text-[#8a8275]">
+                            This stylist will only be available from{" "}
+                            <span className="font-semibold text-[#ede583]">{editCustomStart}</span>
+                            {" "}to{" "}
+                            <span className="font-semibold text-[#ede583]">{editCustomEnd}</span>
+                            {" "}every day, unless exceptions are set.
+                          </p>
+                        )}
                       </div>
 
                       {/* Services Selection */}
@@ -509,6 +584,11 @@ export function AdminStylists() {
                           <span className="font-semibold text-[#f5f0e8]">{s.name}</span>
                           {!s.is_active && (
                             <span className="text-xs text-red-400/90">Hidden</span>
+                          )}
+                          {s.custom_work_start && s.custom_work_end && (
+                            <span className="rounded bg-[#2a2010] px-1.5 py-0.5 text-[10px] text-[#b88a3a]">
+                              {s.custom_work_start.slice(0,5)}–{s.custom_work_end.slice(0,5)}
+                            </span>
                           )}
                         </div>
                         {s.specialties && s.specialties.length > 0 && (

@@ -6,9 +6,10 @@ import { AdminSignOut } from "@/components/admin-sign-out";
 import { AdminBookings } from "./admin-bookings";
 import { AdminServices } from "./admin-services";
 import { AdminStylists } from "./admin-stylists";
+import { AdminSalonSchedule } from "./admin-salon-schedule";
 import { adminMuted, adminTabBar, adminTabButton } from "@/lib/admin-ui-classes";
 
-type AdminTab = "bookings" | "services" | "stylists";
+type AdminTab = "bookings" | "services" | "stylists" | "salon-hours";
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState<AdminTab>("bookings");
@@ -17,6 +18,7 @@ export default function AdminDashboard() {
     ["bookings", "Bookings"],
     ["services", "Services"],
     ["stylists", "Staff & skills"],
+    ["salon-hours", "Salon Hours"],
   ] as const;
 
   return (
@@ -68,6 +70,7 @@ export default function AdminDashboard() {
         {tab === "bookings" && <AdminBookings />}
         {tab === "services" && <AdminServices />}
         {tab === "stylists" && <AdminStylists />}
+        {tab === "salon-hours" && <AdminSalonSchedule />}
       </div>
     </div>
   );
