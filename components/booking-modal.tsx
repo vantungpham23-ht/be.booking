@@ -354,8 +354,28 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
   };
 
   const handleSubmit = async () => {
-    if (!selectedService || !selectedStylist || !selectedDate || !selectedTime) return;
-    if (!customerName.trim() || !normalizeSkMobilePhone(customerPhone)) return;
+    if (!selectedService || !selectedStylist || !selectedDate || !selectedTime) {
+      setSubmitError(
+        lang === "sk" ? "Chýba výber služby, špecialistu alebo času." : "Missing service, stylist, or time selection."
+      );
+      return;
+    }
+    if (!customerName.trim()) {
+      setSubmitError(lang === "sk" ? "Zadajte svoje meno." : "Please enter your name.");
+      return;
+    }
+    const normalizedPhone = normalizeSkMobilePhone(customerPhone);
+    if (!normalizedPhone) {
+      setPhoneError(
+        lang === "sk"
+          ? "Zadajte slovenské mobilné číslo (napr. 0912 345 678 alebo +421 912 345 678)."
+          : "Enter a Slovak mobile number (e.g. 0912 345 678 or +421 912 345 678)."
+      );
+      setSubmitError(
+        lang === "sk" ? "Neplatné telefónne číslo." : "Invalid phone number."
+      );
+      return;
+    }
     if (submitInFlight.current) return;
     submitInFlight.current = true;
 
