@@ -150,8 +150,8 @@ export function AdminStylists() {
     // Build custom hours payload
     const hasCustomStart = editCustomStart.trim() !== "";
     const hasCustomEnd   = editCustomEnd.trim()   !== "";
-    const custom_work_start = hasCustomStart && hasCustomEnd ? editCustomStart.trim() : null;
-    const custom_work_end   = hasCustomStart && hasCustomEnd ? editCustomEnd.trim()   : null;
+    const custom_work_start = hasCustomStart ? editCustomStart.trim() : null;
+    const custom_work_end   = hasCustomEnd   ? editCustomEnd.trim()   : null;
 
     const { error } = await supabase
       .from("stylists")
@@ -585,9 +585,9 @@ export function AdminStylists() {
                           {!s.is_active && (
                             <span className="text-xs text-red-400/90">Hidden</span>
                           )}
-                          {s.custom_work_start && s.custom_work_end && (
+                          {(s.custom_work_start || s.custom_work_end) && (
                             <span className="rounded bg-[#2a2010] px-1.5 py-0.5 text-[10px] text-[#b88a3a]">
-                              {s.custom_work_start.slice(0,5)}–{s.custom_work_end.slice(0,5)}
+                              {s.custom_work_start?.slice(0,5)}{s.custom_work_start && s.custom_work_end && '–'}{s.custom_work_end?.slice(0,5)}
                             </span>
                           )}
                         </div>
