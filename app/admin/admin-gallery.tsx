@@ -89,7 +89,7 @@ export function AdminGallery() {
         setItems(itemsData.items);
       }
       if (stylistsData) {
-        setStylists(stylistsData);
+        setStylists(stylistsData as Stylist[]);
       }
     } catch (e) {
       console.error("[AdminGallery] load error", e);
