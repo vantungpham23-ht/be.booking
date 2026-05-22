@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     // Generate unique filename
     const ext = file.name.split(".").pop() || "jpg";
     const filename = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-    const filepath = `gallery/${filename}`;
+    const filepath = filename;
 
     // Read file buffer
     const arrayBuffer = await file.arrayBuffer();
