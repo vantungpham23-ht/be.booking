@@ -7,9 +7,10 @@ import { AdminBookings } from "./admin-bookings";
 import { AdminServices } from "./admin-services";
 import { AdminStylists } from "./admin-stylists";
 import { AdminSalonSchedule } from "./admin-salon-schedule";
+import { AdminGallery } from "./admin-gallery";
 import { adminMuted, adminTabBar, adminTabButton } from "@/lib/admin-ui-classes";
 
-type AdminTab = "bookings" | "services" | "stylists" | "salon-hours";
+type AdminTab = "bookings" | "services" | "stylists" | "salon-hours" | "gallery";
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState<AdminTab>("bookings");
@@ -19,6 +20,7 @@ export default function AdminDashboard() {
     ["services", "Services"],
     ["stylists", "Staff & skills"],
     ["salon-hours", "Salon Hours"],
+    ["gallery", "Gallery"],
   ] as const;
 
   return (
@@ -71,6 +73,7 @@ export default function AdminDashboard() {
         {tab === "services" && <AdminServices />}
         {tab === "stylists" && <AdminStylists />}
         {tab === "salon-hours" && <AdminSalonSchedule />}
+        {tab === "gallery" && <AdminGallery />}
       </div>
     </div>
   );
