@@ -19,6 +19,15 @@ const PriceMenu = dynamic(
   }
 );
 
+const Gallery = dynamic(
+  () => import("@/components/gallery").then((m) => ({ default: m.Gallery })),
+  {
+    loading: () => (
+      <div className="min-h-[50vh] bg-[#1a1a1a]" aria-hidden />
+    ),
+  }
+);
+
 type Lang = "en" | "sk";
 
 type TeamMember = {
@@ -429,6 +438,10 @@ export default function HomePage() {
           title={texts[lang].menu.title}
           sub={texts[lang].menu.sub}
         />
+
+        <div className="gold-divider" />
+
+        <Gallery lang={lang} />
 
         <div className="gold-divider" />
 
