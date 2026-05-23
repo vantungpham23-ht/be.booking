@@ -140,7 +140,7 @@ export function Gallery({ lang, label, title, sub, maxItems = 12 }: GalleryProps
         .select("id, name, is_active")
         .eq("is_active", true)
         .order("name");
-      setStylists(data || []);
+      setStylists((data || []) as Stylist[]);
     } catch (e) {
       console.error("[Gallery] load stylists error", e);
     }

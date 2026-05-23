@@ -286,7 +286,7 @@ export function BookingModal({ isOpen, onClose, lang = "en" }: BookingModalProps
         .eq("is_active", true)
         .order("name");
 
-      setStylists(stylistRows ?? []);
+      setStylists((stylistRows ?? []) as Stylist[]);
     } catch (e) {
       console.error("[BookingModal] fetchStylistsForService", e);
       setStylists([]);
