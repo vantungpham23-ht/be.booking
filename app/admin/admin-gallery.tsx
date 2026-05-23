@@ -50,6 +50,15 @@ export function AdminGallery() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState("");
 
+  // Helper: get ISO week number
+  const getWeekNumber = (date: Date): number => {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getDay() || 7;
+    d.setDate(d.getDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getFullYear(), 0, 1));
+    return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  };
+
   // Form state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -57,7 +66,7 @@ export function AdminGallery() {
     title: "",
     description: "",
     stylist_id: "",
-    week_number: new Date().getWeek ? new Date().getWeek() : Math.ceil(new Date().getDate() / 7),
+    week_number: getWeekNumber(new Date()),
     year: new Date().getFullYear(),
     is_featured: false,
   });
